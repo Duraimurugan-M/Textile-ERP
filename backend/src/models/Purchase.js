@@ -1,0 +1,49 @@
+import mongoose from "mongoose";
+
+const purchaseSchema = new mongoose.Schema(
+  {
+    supplierName: {
+      type: String,
+      required: true,
+    },
+
+    materialType: {
+      type: String,
+      enum: ["RawYarn"],
+      default: "RawYarn",
+    },
+
+    lotNumber: {
+      type: String,
+      required: true,
+    },
+
+    quantity: {
+      type: Number,
+      required: true,
+    },
+
+    unit: {
+      type: String,
+      default: "kg",
+    },
+
+    ratePerUnit: {
+      type: Number,
+      required: true,
+    },
+
+    totalAmount: {
+      type: Number,
+    },
+
+    purchasedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  { timestamps: true }
+);
+
+const Purchase = mongoose.model("Purchase", purchaseSchema);
+export default Purchase;

@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { FaBox, FaShoppingCart, FaTachometerAlt } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
+import { FaIndustry } from "react-icons/fa";
+
 
 const Sidebar = () => {
   return (
@@ -36,6 +38,17 @@ const Sidebar = () => {
         <FaShoppingCart />
         Purchase
       </NavLink>
+
+      <NavLink
+        to="/production"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaIndustry />
+        Production
+      </NavLink>
+
     </div>
   );
 };

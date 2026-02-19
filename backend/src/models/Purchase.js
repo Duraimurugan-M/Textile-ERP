@@ -25,6 +25,7 @@ const purchaseSchema = new mongoose.Schema(
 
     unit: {
       type: String,
+      enum: ["kg", "meter"],
       default: "kg",
     },
 

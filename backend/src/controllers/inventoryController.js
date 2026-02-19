@@ -2,8 +2,8 @@ import Inventory from "../models/Inventory.js";
 
 import {
   addStock,
+  getAllStock,
   reduceStock,
-  getAllStock
 } from "../services/inventoryService.js";
 
 // ➕ Add Stock

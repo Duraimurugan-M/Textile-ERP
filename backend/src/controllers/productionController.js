@@ -12,37 +12,48 @@ export const createProduction = async (req, res) => {
       outputQuantity,
     } = req.body;
 
-    // 🔒 Validation: Prevent production gain
-    if (outputQuantity > inputQuantity) {
+    // 🔒 Basic validation
+    if (
+      !inputMaterialType ||
+      !inputLotNumber ||
+      !inputQuantity ||
+      !outputMaterialType ||
+      !outputLotNumber ||
+      !outputQuantity
+    ) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (Number(outputQuantity) > Number(inputQuantity)) {
       return res.status(400).json({
         message: "Output quantity cannot be greater than input quantity",
       });
     }
 
-    // 1️⃣ Deduct input stock using service
+    // 1️⃣ Deduct input stock
     const deductedStock = await deductStock({
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
-      quantity: inputQuantity,
+      quantity: Number(inputQuantity),
     });
 
     // 2️⃣ Create production record
     const production = await Production.create({
       inputMaterialType,
       inputLotNumber,
-      inputQuantity,
+      inputQuantity: Number(inputQuantity),
       outputMaterialType,
       outputLotNumber,
-      outputQuantity,
+      outputQuantity: Number(outputQuantity),
       status: "Completed",
       createdBy: req.user._id,
     });
 
-    // 3️⃣ Add finished goods to inventory
+    // 3️⃣ Add output stock
     await addStock({
       materialType: outputMaterialType,
       lotNumber: outputLotNumber,
-      quantity: outputQuantity,
+      quantity: Number(outputQuantity),
       unit: deductedStock.unit,
       location: "Production Warehouse",
       createdBy: req.user._id,

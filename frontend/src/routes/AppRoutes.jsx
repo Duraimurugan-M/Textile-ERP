@@ -7,6 +7,8 @@ import PurchaseList from "../pages/purchase/PurchaseList";
 import AddPurchase from "../pages/purchase/AddPurchase";
 import ProductionList from "../pages/production/ProductionList";
 import AddProduction from "../pages/production/AddProduction";
+import SalesList from "../pages/sales/SalesList";
+import AddSales from "../pages/sales/AddSales";
 
 
 const Dashboard = () => <h2>Dashboard</h2>;
@@ -78,6 +80,24 @@ const AppRoutes = () => {
           element={
             <Layout>
               <AddProduction />
+            </Layout>
+          }
+        />
+
+         {/* Sales */}
+        <Route
+          path="/sales"
+          element={
+            <Layout>
+              <SalesList />
+            </Layout>
+          }
+        />
+        <Route
+          path="/sales/add"
+          element={
+            <Layout>
+              <AddSales />
             </Layout>
           }
         />

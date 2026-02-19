@@ -49,6 +49,16 @@ const Sidebar = () => {
         Production
       </NavLink>
 
+        <NavLink
+        to="/sales"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaShoppingCart />
+        Sales
+      </NavLink>
+
     </div>
   );
 };

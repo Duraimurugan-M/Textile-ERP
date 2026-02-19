@@ -1,9 +1,7 @@
-import Inventory from "../models/Inventory.js";
-
 import {
   addStock,
-  getAllStock,
   reduceStock,
+  getAllStock,
 } from "../services/inventoryService.js";
 
 // ➕ Add Stock
@@ -53,18 +51,5 @@ export const consumeStock = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
-  }
-};
-
-// Delete all stocks in development/testing phase
-export const deleteAllStock = async (req, res) => {
-  try {
-    await Inventory.deleteMany();
-    res.status(200).json({
-      success: true,
-      message: "All stock records deleted",
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
   }
 };

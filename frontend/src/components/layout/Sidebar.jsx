@@ -7,16 +7,34 @@ const Sidebar = () => {
     <div className={styles.sidebar}>
       <div className={styles.logo}>TEXTILE ERP</div>
 
-      <NavLink to="/dashboard" className={styles.navItem}>
-        <FaTachometerAlt /> Dashboard
+      <NavLink
+        to="/dashboard"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaTachometerAlt />
+        Dashboard
       </NavLink>
 
-      <NavLink to="/inventory" className={styles.navItem}>
-        <FaBox /> Inventory
+      <NavLink
+        to="/inventory"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaBox />
+        Inventory
       </NavLink>
 
-      <NavLink to="/purchase" className={styles.navItem}>
-        <FaShoppingCart /> Purchase
+      <NavLink
+        to="/purchase"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaShoppingCart />
+        Purchase
       </NavLink>
     </div>
   );

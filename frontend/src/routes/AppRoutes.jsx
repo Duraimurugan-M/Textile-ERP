@@ -4,20 +4,17 @@ import Layout from "../components/layout/Layout";
 import InventoryList from "../pages/inventory/InventoryList";
 import AddInventory from "../pages/inventory/AddInventory";
 import PurchaseList from "../pages/purchase/PurchaseList";
+import AddPurchase from "../pages/purchase/AddPurchase";
 
-
-// Temporary pages (until we build them properly)
 const Dashboard = () => <h2>Dashboard</h2>;
-const Purchase = () => <h2>Purchase</h2>;
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Login */}
+
         <Route path="/" element={<Login />} />
 
-        {/* Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -27,7 +24,6 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Inventory */}
         <Route
           path="/inventory"
           element={
@@ -37,7 +33,6 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Add Inventory */}
         <Route
           path="/inventory/add"
           element={
@@ -47,8 +42,6 @@ const AppRoutes = () => {
           }
         />
 
-
-        {/* Purchase */}
         <Route
           path="/purchase"
           element={
@@ -57,6 +50,16 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+
+        <Route
+          path="/purchase/add"
+          element={
+            <Layout>
+              <AddPurchase />
+            </Layout>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );

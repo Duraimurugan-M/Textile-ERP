@@ -4,6 +4,7 @@ import authRoutes from "./routes/authRoutes.js";
 import roleRoutes from "./routes/roleRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import purchaseRoutes from "./routes/purchaseRoutes.js";
+import productionRoutes from "./routes/productionRoutes.js";
 
 
 const app = express();
@@ -15,5 +16,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/purchase", purchaseRoutes);
+app.use("/api/production", productionRoutes);
 
 export default app;

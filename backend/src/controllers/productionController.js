@@ -83,3 +83,16 @@ export const getProductions = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Delete all productions (For Development/Testing)
+export const deleteAllProductions = async (req, res) => {
+  try {
+    await Production.deleteMany();
+    res.status(200).json({
+      success: true,
+      message: "All productions deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

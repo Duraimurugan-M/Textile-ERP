@@ -3,6 +3,8 @@ import Login from "../pages/auth/Login";
 import Layout from "../components/layout/Layout";
 import InventoryList from "../pages/inventory/InventoryList";
 import AddInventory from "../pages/inventory/AddInventory";
+import PurchaseList from "../pages/purchase/PurchaseList";
+
 
 // Temporary pages (until we build them properly)
 const Dashboard = () => <h2>Dashboard</h2>;
@@ -45,12 +47,13 @@ const AppRoutes = () => {
           }
         />
 
+
         {/* Purchase */}
         <Route
           path="/purchase"
           element={
             <Layout>
-              <Purchase />
+              <PurchaseList />
             </Layout>
           }
         />

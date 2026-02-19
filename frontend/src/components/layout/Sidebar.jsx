@@ -20,16 +20,6 @@ const Sidebar = () => {
       </NavLink>
 
       <NavLink
-        to="/inventory"
-        className={({ isActive }) =>
-          `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaBox />
-        Inventory
-      </NavLink>
-
-      <NavLink
         to="/purchase"
         className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
@@ -37,6 +27,16 @@ const Sidebar = () => {
       >
         <FaShoppingCart />
         Purchase
+      </NavLink>
+
+      <NavLink
+        to="/inventory"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaBox />
+        Inventory
       </NavLink>
 
       <NavLink

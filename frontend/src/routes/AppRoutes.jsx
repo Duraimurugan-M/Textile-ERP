@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import Layout from "../components/layout/Layout";
 import InventoryList from "../pages/inventory/InventoryList";
+import AddInventory from "../pages/inventory/AddInventory";
 
 // Temporary pages (until we build them properly)
 const Dashboard = () => <h2>Dashboard</h2>;
@@ -30,6 +31,16 @@ const AppRoutes = () => {
           element={
             <Layout>
               <InventoryList />
+            </Layout>
+          }
+        />
+
+        {/* Add Inventory */}
+        <Route
+          path="/inventory/add"
+          element={
+            <Layout>
+              <AddInventory />
             </Layout>
           }
         />

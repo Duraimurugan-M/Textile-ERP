@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import API from "../../api/axios";
 import styles from "./InventoryList.module.css";
+import { useNavigate } from "react-router-dom";
+
 
 const InventoryList = () => {
   const [inventory, setInventory] = useState([]);
@@ -21,10 +23,19 @@ const InventoryList = () => {
     fetchInventory();
   }, []);
 
+  const navigate = useNavigate();
+
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Inventory Management</h2>
+        <button
+          className={styles.addButton}
+          onClick={() => navigate("/inventory/add")}
+        >
+          + Add Inventory
+        </button>
       </div>
 
       {loading ? (
@@ -58,9 +69,7 @@ const InventoryList = () => {
                     <td>{item.unit}</td>
                     <td>
                       <span
-                        className={`${styles.status} ${
-                          styles[item.status]
-                        }`}
+                        className={`${styles.status} ${styles[item.status]}`}
                       >
                         {item.status}
                       </span>

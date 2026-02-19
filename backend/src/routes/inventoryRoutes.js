@@ -3,6 +3,7 @@ import {
   createStock,
   fetchAllStock,
   consumeStock,
+  deleteAllStock,
 } from "../controllers/inventoryController.js";
 
 import  authMiddleware  from "../middleware/authMiddleware.js";
@@ -32,6 +33,14 @@ router.put(
   authMiddleware,
   checkPermission("inventory", "edit"),
   consumeStock
+);
+
+// Delete all stocks in development/testing phase
+router.delete(
+  "/delete-all",
+  authMiddleware,
+  checkPermission("inventory", "edit"),
+  deleteAllStock
 );
 
 export default router;

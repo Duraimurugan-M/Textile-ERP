@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createPurchase,
+  deleteAllPurchases,
   getPurchases,
 } from "../controllers/purchaseController.js";
 
@@ -16,6 +17,13 @@ router.post(
   authMiddleware,
   checkPermission("purchase", "create"),
   createPurchase
+);
+
+router.delete(
+  "/delete-all",
+  authMiddleware,
+  checkPermission("purchase", "delete"),
+  deleteAllPurchases
 );
 
 export default router;

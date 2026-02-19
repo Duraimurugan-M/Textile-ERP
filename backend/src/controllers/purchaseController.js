@@ -58,3 +58,16 @@ export const getPurchases = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Delete all purchases (for testing/development)
+export const deleteAllPurchases = async (req, res) => {
+  try {
+    await Purchase.deleteMany();
+    res.status(200).json({
+      success: true,
+      message: "All purchase records deleted",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

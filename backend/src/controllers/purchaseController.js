@@ -44,3 +44,17 @@ export const createPurchase = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Get all purchases
+export const getPurchases = async (req, res) => {
+  try {
+    const purchases = await Purchase.find().sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: purchases,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

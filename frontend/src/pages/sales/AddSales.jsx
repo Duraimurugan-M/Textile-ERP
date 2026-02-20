@@ -1,21 +1,41 @@
-import { useState } from "react";
-import API from "../../api/axios";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../../api/axios";
 import styles from "./AddSales.module.css";
 
-const AddSale = () => {
+const AddSales = () => {
   const navigate = useNavigate();
 
+  const [customers, setCustomers] = useState([]);
+
   const [form, setForm] = useState({
-    customerName: "",
-    materialType: "",
+    customer: "",
+    materialType: "FinishedFabric",
     lotNumber: "",
     quantity: "",
     ratePerUnit: "",
   });
 
+
+useEffect(() => {
+  const loadCustomers = async () => {
+    try {
+      const { data } = await API.get("/customers");
+      setCustomers(data.data);
+    } catch (error) {
+      console.error(error);
+      console.log(error.response?.data || "Failed to load customers");
+    }
+  };
+
+  loadCustomers();
+}, []);
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -25,31 +45,43 @@ const AddSale = () => {
       navigate("/sales");
     } catch (error) {
       console.error(error.response?.data || error.message);
+      alert("Failed to create sale");
     }
   };
 
   return (
     <div className={styles.container}>
-      <h2>Create Sale</h2>
+      <h2>Add Sale</h2>
+
       <form onSubmit={handleSubmit} className={styles.form}>
-        <input
-          name="customerName"
-          placeholder="Customer Name"
+
+        <select
+          name="customer"
+          value={form.customer}
           onChange={handleChange}
           required
-        />
+        >
+          <option value="">Select Customer</option>
+          {customers.map((cust) => (
+            <option key={cust._id} value={cust._id}>
+              {cust.customerName}
+            </option>
+          ))}
+        </select>
+
         <input
-          name="materialType"
-          placeholder="Material Type"
-          onChange={handleChange}
-          required
+          type="text"
+          value="FinishedFabric"
+          disabled
         />
+
         <input
           name="lotNumber"
           placeholder="Lot Number"
           onChange={handleChange}
           required
         />
+
         <input
           type="number"
           name="quantity"
@@ -57,6 +89,7 @@ const AddSale = () => {
           onChange={handleChange}
           required
         />
+
         <input
           type="number"
           name="ratePerUnit"
@@ -64,12 +97,12 @@ const AddSale = () => {
           onChange={handleChange}
           required
         />
-        <button type="submit" className={styles.button}>
-          Save Sale
-        </button>
+
+        <button type="submit">Create Sale</button>
+
       </form>
     </div>
   );
 };
 
-export default AddSale;
+export default AddSales;

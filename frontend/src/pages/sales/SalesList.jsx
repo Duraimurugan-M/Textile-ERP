@@ -56,12 +56,12 @@ const SalesList = () => {
               ) : (
                 sales.map((item) => (
                   <tr key={item._id}>
-                    <td>{item.customerName}</td>
+                    <td>{item.customer?.customerName || "N/A"}</td>
                     <td>{item.materialType}</td>
                     <td>{item.lotNumber}</td>
                     <td>{item.quantity}</td>
-                    <td>{item.ratePerUnit}</td>
-                    <td>{item.totalAmount}</td>
+                    <td>₹{item.ratePerUnit}</td>
+                    <td>₹{item.totalAmount}</td>
                   </tr>
                 ))
               )}

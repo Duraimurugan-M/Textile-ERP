@@ -1,5 +1,6 @@
 import Production from "../models/Production.js";
 import { addStock, deductStock } from "../services/inventoryService.js";
+import Inventory from "../models/Inventory.js";
 
 export const createProduction = async (req, res) => {
   try {
@@ -12,53 +13,43 @@ export const createProduction = async (req, res) => {
       outputQuantity,
     } = req.body;
 
-    // 🔒 Strict stage flow map
-    const validFlow = {
-      RawYarn: "DyedYarn",
-      DyedYarn: "GreyFabric",
-      GreyFabric: "FinishedFabric",
-    };
+    if (
+      !inputMaterialType ||
+      !inputLotNumber ||
+      !outputMaterialType ||
+      !outputLotNumber
+    )
+      return res.status(400).json({ message: "All fields required" });
 
-    // ❌ FinishedFabric cannot be input
-    if (inputMaterialType === "FinishedFabric") {
-      return res.status(400).json({
-        message: "Finished Fabric cannot be used as input material",
-      });
-    }
+    if (Number(inputQuantity) <= 0 || Number(outputQuantity) <= 0)
+      return res.status(400).json({ message: "Quantity must be greater than 0" });
 
-    // ❌ Invalid stage skipping
-    if (validFlow[inputMaterialType] !== outputMaterialType) {
-      return res.status(400).json({
-        message: `Invalid production flow from ${inputMaterialType} to ${outputMaterialType}`,
-      });
-    }
+    // 🔒 Output lot must NOT exist
+    const existingOutputLot = await Inventory.findOne({ lotNumber: outputLotNumber });
+    if (existingOutputLot)
+      return res.status(400).json({ message: "Output lot already exists" });
 
-    if (Number(outputQuantity) > Number(inputQuantity)) {
-      return res.status(400).json({
-        message: "Output quantity cannot exceed input quantity",
-      });
-    }
-
-    // Deduct input stock
+    // 🔒 Deduct input stock
     const deductedStock = await deductStock({
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
       quantity: Number(inputQuantity),
     });
 
-    // Create production record
+    if (!deductedStock)
+      return res.status(400).json({ message: "Insufficient stock" });
+
     const production = await Production.create({
       inputMaterialType,
       inputLotNumber,
-      inputQuantity: Number(inputQuantity),
+      inputQuantity,
       outputMaterialType,
       outputLotNumber,
-      outputQuantity: Number(outputQuantity),
+      outputQuantity,
       status: "Completed",
       createdBy: req.user._id,
     });
 
-    // Add output stock
     await addStock({
       materialType: outputMaterialType,
       lotNumber: outputLotNumber,
@@ -70,7 +61,7 @@ export const createProduction = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Production completed successfully",
+      message: "Production completed",
       data: production,
     });
 

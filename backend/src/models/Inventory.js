@@ -11,11 +11,14 @@ const inventorySchema = new mongoose.Schema(
     lotNumber: {
       type: String,
       required: true,
+      unique: true,
+      trim: true,
     },
 
     quantity: {
       type: Number,
       required: true,
+      min: 0,
     },
 
     unit: {

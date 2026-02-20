@@ -1,5 +1,6 @@
 import Purchase from "../models/Purchase.js";
 import { addStock } from "../services/inventoryService.js";
+import Inventory from "../models/Inventory.js";
 
 export const createPurchase = async (req, res) => {
   try {
@@ -12,33 +13,37 @@ export const createPurchase = async (req, res) => {
       ratePerUnit,
     } = req.body;
 
-    const qty = Number(quantity);
-    const rate = Number(ratePerUnit);
+    if (!supplier || !materialType || !lotNumber)
+      return res.status(400).json({ message: "All fields required" });
 
-    if (isNaN(qty) || isNaN(rate)) {
-      return res.status(400).json({
-        message: "Invalid quantity or rate",
-      });
-    }
+    if (Number(quantity) <= 0)
+      return res.status(400).json({ message: "Quantity must be greater than 0" });
 
-    const totalAmount = qty * rate;
+    if (Number(ratePerUnit) <= 0)
+      return res.status(400).json({ message: "Rate must be greater than 0" });
+
+    // 🔒 Check lot uniqueness
+    const existingLot = await Inventory.findOne({ lotNumber });
+    if (existingLot)
+      return res.status(400).json({ message: "Lot number already exists" });
+
+    const totalAmount = quantity * ratePerUnit;
 
     const purchase = await Purchase.create({
       supplier,
       materialType,
       lotNumber,
-      quantity: qty,
+      quantity,
       unit,
-      ratePerUnit: rate,
+      ratePerUnit,
       totalAmount,
       purchasedBy: req.user._id,
     });
 
-    // 🔥 Add stock based on selected materialType
     await addStock({
       materialType,
       lotNumber,
-      quantity: qty,
+      quantity,
       unit,
       location: "Main Warehouse",
       createdBy: req.user._id,
@@ -49,6 +54,7 @@ export const createPurchase = async (req, res) => {
       message: "Purchase created & stock added",
       data: purchase,
     });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

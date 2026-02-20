@@ -14,6 +14,11 @@ export const createSale = async (req, res) => {
       });
     }
 
+    if (Number(quantity) <= 0)
+      return res
+        .status(400)
+        .json({ message: "Quantity must be greater than 0" });
+
     const qty = Number(quantity);
     const rate = Number(ratePerUnit);
 

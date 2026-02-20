@@ -10,8 +10,8 @@ const purchaseSchema = new mongoose.Schema(
 
     materialType: {
       type: String,
-      enum: ["RawYarn"],
-      default: "RawYarn",
+      enum: ["RawYarn", "DyedYarn", "GreyFabric", "FinishedFabric"],
+      required: true,
     },
 
     lotNumber: {
@@ -44,8 +44,7 @@ const purchaseSchema = new mongoose.Schema(
       ref: "User",
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-const Purchase = mongoose.model("Purchase", purchaseSchema);
-export default Purchase;
+export default mongoose.model("Purchase", purchaseSchema);

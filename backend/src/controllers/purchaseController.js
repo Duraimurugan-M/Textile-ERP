@@ -5,28 +5,40 @@ export const createPurchase = async (req, res) => {
   try {
     const {
       supplier,
+      materialType,
       lotNumber,
       quantity,
       unit,
       ratePerUnit,
     } = req.body;
 
-    const totalAmount = quantity * ratePerUnit;
+    const qty = Number(quantity);
+    const rate = Number(ratePerUnit);
+
+    if (isNaN(qty) || isNaN(rate)) {
+      return res.status(400).json({
+        message: "Invalid quantity or rate",
+      });
+    }
+
+    const totalAmount = qty * rate;
 
     const purchase = await Purchase.create({
       supplier,
+      materialType,
       lotNumber,
-      quantity,
+      quantity: qty,
       unit,
-      ratePerUnit,
+      ratePerUnit: rate,
       totalAmount,
       purchasedBy: req.user._id,
     });
 
+    // 🔥 Add stock based on selected materialType
     await addStock({
-      materialType: "RawYarn",
+      materialType,
       lotNumber,
-      quantity,
+      quantity: qty,
       unit,
       location: "Main Warehouse",
       createdBy: req.user._id,
@@ -42,7 +54,6 @@ export const createPurchase = async (req, res) => {
   }
 };
 
-// Get all purchases
 export const getPurchases = async (req, res) => {
   try {
     const purchases = await Purchase.find()
@@ -59,7 +70,6 @@ export const getPurchases = async (req, res) => {
   }
 };
 
-// Delete all purchases (for testing/development)
 export const deleteAllPurchases = async (req, res) => {
   try {
     await Purchase.deleteMany();

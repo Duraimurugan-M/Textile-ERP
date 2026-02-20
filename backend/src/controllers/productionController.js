@@ -12,32 +12,41 @@ export const createProduction = async (req, res) => {
       outputQuantity,
     } = req.body;
 
-    // 🔒 Basic validation
-    if (
-      !inputMaterialType ||
-      !inputLotNumber ||
-      !inputQuantity ||
-      !outputMaterialType ||
-      !outputLotNumber ||
-      !outputQuantity
-    ) {
-      return res.status(400).json({ message: "All fields are required" });
+    // 🔒 Strict stage flow map
+    const validFlow = {
+      RawYarn: "DyedYarn",
+      DyedYarn: "GreyFabric",
+      GreyFabric: "FinishedFabric",
+    };
+
+    // ❌ FinishedFabric cannot be input
+    if (inputMaterialType === "FinishedFabric") {
+      return res.status(400).json({
+        message: "Finished Fabric cannot be used as input material",
+      });
+    }
+
+    // ❌ Invalid stage skipping
+    if (validFlow[inputMaterialType] !== outputMaterialType) {
+      return res.status(400).json({
+        message: `Invalid production flow from ${inputMaterialType} to ${outputMaterialType}`,
+      });
     }
 
     if (Number(outputQuantity) > Number(inputQuantity)) {
       return res.status(400).json({
-        message: "Output quantity cannot be greater than input quantity",
+        message: "Output quantity cannot exceed input quantity",
       });
     }
 
-    // 1️⃣ Deduct input stock
+    // Deduct input stock
     const deductedStock = await deductStock({
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
       quantity: Number(inputQuantity),
     });
 
-    // 2️⃣ Create production record
+    // Create production record
     const production = await Production.create({
       inputMaterialType,
       inputLotNumber,
@@ -49,7 +58,7 @@ export const createProduction = async (req, res) => {
       createdBy: req.user._id,
     });
 
-    // 3️⃣ Add output stock
+    // Add output stock
     await addStock({
       materialType: outputMaterialType,
       lotNumber: outputLotNumber,
@@ -64,6 +73,7 @@ export const createProduction = async (req, res) => {
       message: "Production completed successfully",
       data: production,
     });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

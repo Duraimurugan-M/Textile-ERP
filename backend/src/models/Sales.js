@@ -2,14 +2,15 @@ import mongoose from "mongoose";
 
 const salesSchema = new mongoose.Schema(
   {
-    customerName: {
-      type: String,
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
       required: true,
     },
 
     materialType: {
       type: String,
-      enum: ["RawYarn", "DyedYarn", "GreyFabric", "FinishedFabric"],
+      enum: ["FinishedFabric"], // Only finished goods can be sold
       required: true,
     },
 
@@ -33,7 +34,7 @@ const salesSchema = new mongoose.Schema(
       required: true,
     },
 
-    createdBy: {
+    soldBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -42,5 +43,4 @@ const salesSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Sales = mongoose.model("Sales", salesSchema);
-export default Sales;
+export default mongoose.model("Sales", salesSchema);

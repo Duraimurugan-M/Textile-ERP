@@ -1,53 +1,89 @@
 import Sales from "../models/Sales.js";
 import { deductStock } from "../services/inventoryService.js";
 
+// Create Sale
 export const createSale = async (req, res) => {
   try {
     const {
-      customerName,
+      customer,
       materialType,
       lotNumber,
       quantity,
       ratePerUnit,
     } = req.body;
 
-    const totalAmount = quantity * ratePerUnit;
+    // Business rule: Only Finished Fabric
+    if (materialType !== "FinishedFabric") {
+      return res.status(400).json({
+        message: "Only Finished Fabric can be sold",
+      });
+    }
 
-    // 1️⃣ Deduct Stock
+    const qty = Number(quantity);
+    const rate = Number(ratePerUnit);
+
+    if (isNaN(qty) || isNaN(rate)) {
+      return res.status(400).json({
+        message: "Invalid quantity or rate",
+      });
+    }
+
+    // Deduct from inventory
     await deductStock({
       materialType,
       lotNumber,
-      quantity,
+      quantity: qty,
     });
 
-    // 2️⃣ Create Sales Record
+    const totalAmount = qty * rate;
+
     const sale = await Sales.create({
-      customerName,
+      customer,
       materialType,
       lotNumber,
-      quantity,
-      ratePerUnit,
+      quantity: qty,
+      ratePerUnit: rate,
       totalAmount,
-      createdBy: req.user._id,
+      soldBy: req.user._id,
     });
 
     res.status(201).json({
       success: true,
-      message: "Sale created & stock deducted",
+      message: "Sale created successfully",
       data: sale,
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+// Get Sales
+export const getSales = async (req, res) => {
+  try {
+    const sales = await Sales.find()
+      .populate("customer", "customerName phone")
+      .populate("soldBy", "name")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: sales,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const getSales = async (req, res) => {
+// Delete All Sales - For testing purposes only
+export const deleteAllSales = async (req, res) => {
   try {
-    const sales = await Sales.find()
-      .populate("createdBy", "name email")
-      .sort({ createdAt: -1 });
-
-    res.json({ success: true, data: sales });
+    await Sales.deleteMany({});
+    res.json({
+      success: true,
+      message: "All sales deleted successfully",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

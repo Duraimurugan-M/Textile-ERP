@@ -1,5 +1,5 @@
 import express from "express";
-import { createSale, getSales } from "../controllers/salesController.js";
+import { createSale, deleteAllSales, getSales } from "../controllers/salesController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import checkPermission from "../middleware/permissionMiddleware.js";
 
@@ -13,5 +13,12 @@ router.post(
   checkPermission("sales", "create"),
   createSale
 );
+
+router.delete(
+  "/delete-all",
+  authMiddleware,
+  checkPermission("sales", "delete"),
+  deleteAllSales
+)
 
 export default router;

@@ -9,14 +9,14 @@ const AddPurchase = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    supplier: "",
-    materialType: "RawYarn",
-    lotNumber: "",
-    quantity: "",
-    unit: "kg",
-    ratePerUnit: "",
-  });
+const [formData, setFormData] = useState({
+  supplier: "",
+  materialType: "RawYarn",
+  lotNumber: "",
+  quantity: "",
+  unit: "kg",
+  ratePerUnit: "",
+});
 
   // 🔹 Fetch Suppliers on Load
   useEffect(() => {
@@ -62,7 +62,6 @@ const AddPurchase = () => {
       <h2 className={styles.title}>Add Purchase</h2>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        
         {/* Supplier Dropdown */}
         <div className={styles.formGroup}>
           <label>Supplier</label>
@@ -78,6 +77,22 @@ const AddPurchase = () => {
                 {sup.supplierName}
               </option>
             ))}
+          </select>
+        </div>
+
+            {/* Material Type */}
+        <div className={styles.formGroup}>
+          <label>Material Type</label>
+          <select
+            name="materialType"
+            value={formData.materialType}
+            onChange={handleChange}
+            required
+          >
+            <option value="RawYarn">Raw Yarn</option>
+            <option value="DyedYarn">Dyed Yarn</option>
+            <option value="GreyFabric">Grey Fabric</option>
+            <option value="FinishedFabric">Finished Fabric</option>
           </select>
         </div>
 
@@ -108,11 +123,7 @@ const AddPurchase = () => {
 
           <div className={styles.formGroup}>
             <label>Unit</label>
-            <select
-              name="unit"
-              value={formData.unit}
-              onChange={handleChange}
-            >
+            <select name="unit" value={formData.unit} onChange={handleChange}>
               <option value="kg">kg</option>
               <option value="meter">meter</option>
             </select>

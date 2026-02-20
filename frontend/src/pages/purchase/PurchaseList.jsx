@@ -61,7 +61,7 @@ const PurchaseList = () => {
                 purchases.map((item) => (
                   <tr key={item._id}>
                     <td>{item.supplier ? item.supplier.supplierName : "N/A"}</td>
-                    <td>Raw Yarn</td>
+                    <td>{item.materialType}</td>
                     <td>{item.lotNumber}</td>
                     <td>{item.quantity}</td>
                     <td>{item.unit}</td>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import API from "../../api/axios";
-import Layout from "../../components/layout/Layout";
 import styles from "./ProductionList.module.css";
 import { Link } from "react-router-dom";
 
@@ -8,19 +7,28 @@ const ProductionList = () => {
   const [productions, setProductions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProductions = async () => {
-    try {
-      const { data } = await API.get("/production");
-      setProductions(data.data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching production", error);
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    let isMounted = true; // Prevent memory leaks
+
+    const fetchProductions = async () => {
+      try {
+        const { data } = await API.get("/production");
+
+        if (isMounted) {
+          setProductions(data.data);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error fetching production", error);
+        if (isMounted) setLoading(false);
+      }
+    };
+
     fetchProductions();
+
+    return () => {
+      isMounted = false; // Cleanup
+    };
   }, []);
 
   return (
@@ -75,8 +83,7 @@ const ProductionList = () => {
         )}
       </div>
     </div>
-);
-
+  );
 };
 
 export default ProductionList;

@@ -1,18 +1,13 @@
 import Sales from "../models/Sales.js";
+import Inventory from "../models/Inventory.js";
 import { deductStock } from "../services/inventoryService.js";
 
-// Create Sale
+// ✅ Create Sale
 export const createSale = async (req, res) => {
   try {
-    const {
-      customer,
-      materialType,
-      lotNumber,
-      quantity,
-      ratePerUnit,
-    } = req.body;
+    const { customer, materialType, lotNumber, quantity, ratePerUnit } = req.body;
 
-    // Business rule: Only Finished Fabric
+    // 1️⃣ Only FinishedFabric allowed
     if (materialType !== "FinishedFabric") {
       return res.status(400).json({
         message: "Only Finished Fabric can be sold",
@@ -22,15 +17,33 @@ export const createSale = async (req, res) => {
     const qty = Number(quantity);
     const rate = Number(ratePerUnit);
 
-    if (isNaN(qty) || isNaN(rate)) {
+    if (!customer || !lotNumber || isNaN(qty) || isNaN(rate)) {
       return res.status(400).json({
-        message: "Invalid quantity or rate",
+        message: "Invalid input data",
       });
     }
 
-    // Deduct from inventory
+    // 2️⃣ Check inventory stock
+    const stock = await Inventory.findOne({
+      materialType: "FinishedFabric",
+      lotNumber,
+    });
+
+    if (!stock) {
+      return res.status(400).json({
+        message: "Lot not found in inventory",
+      });
+    }
+
+    if (stock.quantity < qty) {
+      return res.status(400).json({
+        message: `Insufficient stock. Available: ${stock.quantity}`,
+      });
+    }
+
+    // 3️⃣ Deduct stock safely
     await deductStock({
-      materialType,
+      materialType: "FinishedFabric",
       lotNumber,
       quantity: qty,
     });
@@ -39,7 +52,7 @@ export const createSale = async (req, res) => {
 
     const sale = await Sales.create({
       customer,
-      materialType,
+      materialType: "FinishedFabric",
       lotNumber,
       quantity: qty,
       ratePerUnit: rate,
@@ -58,8 +71,7 @@ export const createSale = async (req, res) => {
   }
 };
 
-
-// Get Sales
+// ✅ Get Sales
 export const getSales = async (req, res) => {
   try {
     const sales = await Sales.find()
@@ -76,13 +88,13 @@ export const getSales = async (req, res) => {
   }
 };
 
-// Delete All Sales - For testing purposes only
+// ✅ Delete All Sales (Admin Only)
 export const deleteAllSales = async (req, res) => {
   try {
-    await Sales.deleteMany({});
+    await Sales.deleteMany();
     res.json({
       success: true,
-      message: "All sales deleted successfully",
+      message: "All sales records deleted",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

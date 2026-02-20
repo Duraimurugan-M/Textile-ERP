@@ -32,7 +32,7 @@ const AddSales = () => {
     const loadLots = async () => {
       const { data } = await API.get("/inventory");
       const finishedLots = data.data.filter(
-        (item) => item.materialType === "FinishedFabric"
+        (item) => item.materialType === "FinishedFabric" && item.quantity > 0,
       );
       setLots(finishedLots);
     };

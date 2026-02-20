@@ -48,14 +48,16 @@ const AddProduction = () => {
       return;
     }
 
-    if (name === "inputLotNumber") {
-      const selected = inventory.find(
-        (item) =>
-          item.materialType === form.inputMaterialType &&
-          item.lotNumber === value
-      );
-      setAvailableQty(selected ? selected.quantity : 0);
-    }
+   if (name === "inputLotNumber") {
+     const selectedLot = inventory.find(
+       (item) =>
+         item.materialType === form.inputMaterialType &&
+         item.lotNumber === value &&
+         item.quantity > 0,
+     );
+
+     setAvailableQty(selectedLot ? selectedLot.quantity : 0);
+   }
 
     setForm({ ...form, [name]: value });
   };
@@ -76,9 +78,9 @@ const AddProduction = () => {
     }
   };
 
-  const inputLots = inventory.filter(
-    (item) => item.materialType === form.inputMaterialType
-  );
+const inputLots = inventory.filter(
+  (item) => item.materialType === form.inputMaterialType && item.quantity > 0,
+);
 
   return (
     <div className={styles.container}>

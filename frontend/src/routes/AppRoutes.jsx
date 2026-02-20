@@ -11,6 +11,8 @@ import SalesList from "../pages/sales/SalesList";
 import AddSales from "../pages/sales/AddSales";
 import CustomerList from "../pages/customer/CustomerList";
 import AddCustomer from "../pages/customer/AddCustomer";
+import SupplierList from "../pages/supplier/SupplierList";
+import AddSupplier from "../pages/supplier/AddSupplier";
 
 
 const Dashboard = () => <h2>Dashboard</h2>;
@@ -103,11 +105,41 @@ const AppRoutes = () => {
           }
         />
 
-        <Route path="/customer" element={
+        <Route
+          path="/customer"
+          element={
             <Layout>
               <CustomerList />
-            </Layout>} />
-        <Route path="/customer/add" element={<Layout><AddCustomer /></Layout>} />
+            </Layout>
+          }
+        />
+        <Route
+          path="/customer/add"
+          element={
+            <Layout>
+              <AddCustomer />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/supplier"
+          element={
+            <Layout>
+              <SupplierList />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/supplier/add"
+          element={
+            <Layout>
+              <AddSupplier />
+            </Layout>
+          }
+        />
+        
       </Routes>
     </BrowserRouter>
   );

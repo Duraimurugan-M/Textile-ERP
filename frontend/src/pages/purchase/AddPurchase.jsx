@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../api/axios";
 import styles from "./AddPurchase.module.css";
@@ -6,17 +6,31 @@ import styles from "./AddPurchase.module.css";
 const AddPurchase = () => {
   const navigate = useNavigate();
 
- const [formData, setFormData] = useState({
-   supplierName: "",
-   materialType: "RawYarn",
-   lotNumber: "",
-   quantity: "",
-   unit: "kg",
-   ratePerUnit: "",
- });
-
-
+  const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    supplier: "",
+    materialType: "RawYarn",
+    lotNumber: "",
+    quantity: "",
+    unit: "kg",
+    ratePerUnit: "",
+  });
+
+  // 🔹 Fetch Suppliers on Load
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
+
+  const fetchSuppliers = async () => {
+    try {
+      const { data } = await API.get("/suppliers");
+      setSuppliers(data.data);
+    } catch (error) {
+      console.error("Error fetching suppliers", error);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -36,7 +50,7 @@ const AddPurchase = () => {
       alert("Purchase created successfully");
       navigate("/purchase");
     } catch (error) {
-      console.error(error);
+      console.error(error.response?.data || error.message);
       alert("Failed to create purchase");
     } finally {
       setLoading(false);
@@ -48,31 +62,26 @@ const AddPurchase = () => {
       <h2 className={styles.title}>Add Purchase</h2>
 
       <form className={styles.form} onSubmit={handleSubmit}>
+        
+        {/* Supplier Dropdown */}
         <div className={styles.formGroup}>
-          <label>Supplier Name</label>
-          <input
-            type="text"
-            name="supplierName"
-            value={formData.supplierName}
+          <label>Supplier</label>
+          <select
+            name="supplier"
+            value={formData.supplier}
             onChange={handleChange}
             required
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label>Material Type</label>
-          <select
-            name="materialType"
-            value={formData.materialType}
-            onChange={handleChange}
           >
-            <option value="RawYarn">Raw Yarn</option>
-            <option value="DyedYarn">Dyed Yarn</option>
-            <option value="GreyFabric">Grey Fabric</option>
-            <option value="FinishedFabric">Finished Fabric</option>
+            <option value="">Select Supplier</option>
+            {suppliers.map((sup) => (
+              <option key={sup._id} value={sup._id}>
+                {sup.supplierName}
+              </option>
+            ))}
           </select>
         </div>
 
+        {/* Lot Number */}
         <div className={styles.formGroup}>
           <label>Lot Number</label>
           <input
@@ -84,6 +93,7 @@ const AddPurchase = () => {
           />
         </div>
 
+        {/* Quantity + Unit + Rate */}
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label>Quantity</label>
@@ -98,7 +108,11 @@ const AddPurchase = () => {
 
           <div className={styles.formGroup}>
             <label>Unit</label>
-            <select name="unit" value={formData.unit} onChange={handleChange}>
+            <select
+              name="unit"
+              value={formData.unit}
+              onChange={handleChange}
+            >
               <option value="kg">kg</option>
               <option value="meter">meter</option>
             </select>
@@ -109,6 +123,7 @@ const AddPurchase = () => {
             <input
               type="number"
               name="ratePerUnit"
+              value={formData.ratePerUnit}
               onChange={handleChange}
               required
             />

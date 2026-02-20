@@ -9,6 +9,8 @@ import ProductionList from "../pages/production/ProductionList";
 import AddProduction from "../pages/production/AddProduction";
 import SalesList from "../pages/sales/SalesList";
 import AddSales from "../pages/sales/AddSales";
+import CustomerList from "../pages/customer/CustomerList";
+import AddCustomer from "../pages/customer/AddCustomer";
 
 
 const Dashboard = () => <h2>Dashboard</h2>;
@@ -17,7 +19,6 @@ const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-
         <Route path="/" element={<Login />} />
 
         <Route
@@ -84,7 +85,7 @@ const AppRoutes = () => {
           }
         />
 
-         {/* Sales */}
+        {/* Sales */}
         <Route
           path="/sales"
           element={
@@ -102,7 +103,11 @@ const AppRoutes = () => {
           }
         />
 
-
+        <Route path="/customer" element={
+            <Layout>
+              <CustomerList />
+            </Layout>} />
+        <Route path="/customer/add" element={<Layout><AddCustomer /></Layout>} />
       </Routes>
     </BrowserRouter>
   );

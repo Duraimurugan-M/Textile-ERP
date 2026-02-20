@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { FaBox, FaShoppingCart, FaTachometerAlt } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import { FaIndustry } from "react-icons/fa";
+import { FaUserFriends } from "react-icons/fa";
 
 
 const Sidebar = () => {
@@ -57,6 +58,16 @@ const Sidebar = () => {
       >
         <FaShoppingCart />
         Sales
+      </NavLink>
+
+      <NavLink
+        to="/customer"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaUserFriends />
+        Customer
       </NavLink>
 
     </div>

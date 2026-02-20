@@ -4,7 +4,7 @@ import { addStock } from "../services/inventoryService.js";
 export const createPurchase = async (req, res) => {
   try {
     const {
-      supplierName,
+      supplier,
       lotNumber,
       quantity,
       unit,
@@ -13,9 +13,8 @@ export const createPurchase = async (req, res) => {
 
     const totalAmount = quantity * ratePerUnit;
 
-    // 1️⃣ Create Purchase Record
     const purchase = await Purchase.create({
-      supplierName,
+      supplier,
       lotNumber,
       quantity,
       unit,
@@ -24,7 +23,6 @@ export const createPurchase = async (req, res) => {
       purchasedBy: req.user._id,
     });
 
-    // 2️⃣ Add Stock to Inventory
     await addStock({
       materialType: "RawYarn",
       lotNumber,
@@ -39,7 +37,6 @@ export const createPurchase = async (req, res) => {
       message: "Purchase created & stock added",
       data: purchase,
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -48,7 +45,10 @@ export const createPurchase = async (req, res) => {
 // Get all purchases
 export const getPurchases = async (req, res) => {
   try {
-    const purchases = await Purchase.find().sort({ createdAt: -1 });
+    const purchases = await Purchase.find()
+      .populate("supplier", "supplierName phone")
+      .populate("purchasedBy", "name email")
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,

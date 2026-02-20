@@ -2,8 +2,9 @@ import mongoose from "mongoose";
 
 const purchaseSchema = new mongoose.Schema(
   {
-    supplierName: {
-      type: String,
+    supplier: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Supplier",
       required: true,
     },
 
@@ -43,7 +44,7 @@ const purchaseSchema = new mongoose.Schema(
       ref: "User",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Purchase = mongoose.model("Purchase", purchaseSchema);

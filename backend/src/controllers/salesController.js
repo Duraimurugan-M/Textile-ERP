@@ -1,4 +1,5 @@
 import Sales from "../models/Sales.js";
+import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
 import { deductStock } from "../services/inventoryService.js";
 import QC from "../models/QC.js";
@@ -28,44 +29,39 @@ export const createSale = async (req, res) => {
         .json({ message: "Quantity must be greater than 0" });
     }
 
-    // ✅ 1️⃣ QC Check FIRST
+    // 🔒 QC Check
     const qcRecord = await QC.findOne({ lotNumber });
+    if (!qcRecord)
+      return res.status(400).json({ message: "QC not completed" });
 
-    if (!qcRecord) {
-      return res.status(400).json({
-        message: "QC not completed for this lot",
-      });
-    }
+    if (qcRecord.status !== "Approved")
+      return res.status(400).json({ message: "QC not approved" });
 
-    if (qcRecord.status !== "Approved") {
-      return res.status(400).json({
-        message: "Cannot sell. QC not approved",
-      });
-    }
-
-    // ✅ 2️⃣ Check Inventory
-    const stock = await Inventory.findOne({
+    // 🔒 Check Inventory
+    const stockBefore = await Inventory.findOne({
       materialType: "FinishedFabric",
       lotNumber,
     });
 
-    if (!stock) {
-      return res.status(400).json({
-        message: "Lot not found in inventory",
-      });
-    }
+    if (!stockBefore)
+      return res.status(400).json({ message: "Lot not found" });
 
-    if (stock.quantity < qty) {
+    if (stockBefore.quantity < qty)
       return res.status(400).json({
-        message: `Insufficient stock. Available: ${stock.quantity}`,
+        message: `Insufficient stock. Available: ${stockBefore.quantity}`,
       });
-    }
 
-    // ✅ 3️⃣ Deduct Stock
+    // 🔻 Deduct stock
     await deductStock({
       materialType: "FinishedFabric",
       lotNumber,
       quantity: qty,
+    });
+
+    // Get updated stock
+    const stockAfter = await Inventory.findOne({
+      materialType: "FinishedFabric",
+      lotNumber,
     });
 
     const totalAmount = qty * rate;
@@ -78,6 +74,19 @@ export const createSale = async (req, res) => {
       ratePerUnit: rate,
       totalAmount,
       soldBy: req.user._id,
+    });
+
+    // 📘 Ledger Entry
+    await StockMovement.create({
+      materialType: "FinishedFabric",
+      lotNumber,
+      movementType: "OUT",
+      module: "Sale",
+      quantity: qty,
+      previousStock: stockBefore.quantity,
+      newStock: stockAfter.quantity,
+      referenceId: sale._id,
+      performedBy: req.user._id,
     });
 
     res.status(201).json({

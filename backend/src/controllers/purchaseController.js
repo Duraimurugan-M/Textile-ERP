@@ -1,17 +1,12 @@
 import Purchase from "../models/Purchase.js";
 import { addStock } from "../services/inventoryService.js";
+import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
 
 export const createPurchase = async (req, res) => {
   try {
-    const {
-      supplier,
-      materialType,
-      lotNumber,
-      quantity,
-      unit,
-      ratePerUnit,
-    } = req.body;
+    const { supplier, materialType, lotNumber, quantity, unit, ratePerUnit } =
+      req.body;
 
     if (!supplier || !materialType || !lotNumber)
       return res.status(400).json({ message: "All fields required" });
@@ -22,10 +17,9 @@ export const createPurchase = async (req, res) => {
     if (Number(ratePerUnit) <= 0)
       return res.status(400).json({ message: "Rate must be greater than 0" });
 
-    // 🔒 Check lot uniqueness
     const existingLot = await Inventory.findOne({ lotNumber });
     if (existingLot)
-      return res.status(400).json({ message: "Lot number already exists" });
+      return res.status(400).json({ message: "Lot already exists" });
 
     const totalAmount = quantity * ratePerUnit;
 
@@ -49,12 +43,25 @@ export const createPurchase = async (req, res) => {
       createdBy: req.user._id,
     });
 
+    const stockAfter = await Inventory.findOne({ materialType, lotNumber });
+
+    await StockMovement.create({
+      materialType,
+      lotNumber,
+      movementType: "IN",
+      module: "Purchase",
+      quantity,
+      previousStock: 0,
+      newStock: stockAfter.quantity,
+      referenceId: purchase._id,
+      performedBy: req.user._id,
+    });
+
     res.status(201).json({
       success: true,
       message: "Purchase created & stock added",
       data: purchase,
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

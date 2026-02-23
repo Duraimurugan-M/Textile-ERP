@@ -32,6 +32,7 @@ const Login = () => {
           className={styles.input}
           placeholder="Email"
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
 
         <input
@@ -39,6 +40,7 @@ const Login = () => {
           className={styles.input}
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
 
         <button className={styles.button} onClick={handleLogin}>

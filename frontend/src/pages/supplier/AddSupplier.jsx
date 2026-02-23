@@ -63,12 +63,14 @@ const AddSupplier = () => {
           type="email"
           placeholder="Email"
           onChange={handleChange}
+          required
         />
 
         <input
           name="address"
           placeholder="Address"
           onChange={handleChange}
+          required
         />
 
         <button type="submit">Create Supplier</button>

@@ -1,34 +1,49 @@
 import Sales from "../models/Sales.js";
 import Inventory from "../models/Inventory.js";
 import { deductStock } from "../services/inventoryService.js";
+import QC from "../models/QC.js";
 
 // ✅ Create Sale
 export const createSale = async (req, res) => {
   try {
-    const { customer, materialType, lotNumber, quantity, ratePerUnit } = req.body;
+    const { customer, materialType, lotNumber, quantity, ratePerUnit } =
+      req.body;
 
-    // 1️⃣ Only FinishedFabric allowed
     if (materialType !== "FinishedFabric") {
       return res.status(400).json({
         message: "Only Finished Fabric can be sold",
       });
     }
 
-    if (Number(quantity) <= 0)
-      return res
-        .status(400)
-        .json({ message: "Quantity must be greater than 0" });
-
     const qty = Number(quantity);
     const rate = Number(ratePerUnit);
 
     if (!customer || !lotNumber || isNaN(qty) || isNaN(rate)) {
+      return res.status(400).json({ message: "Invalid input data" });
+    }
+
+    if (qty <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Quantity must be greater than 0" });
+    }
+
+    // ✅ 1️⃣ QC Check FIRST
+    const qcRecord = await QC.findOne({ lotNumber });
+
+    if (!qcRecord) {
       return res.status(400).json({
-        message: "Invalid input data",
+        message: "QC not completed for this lot",
       });
     }
 
-    // 2️⃣ Check inventory stock
+    if (qcRecord.status !== "Approved") {
+      return res.status(400).json({
+        message: "Cannot sell. QC not approved",
+      });
+    }
+
+    // ✅ 2️⃣ Check Inventory
     const stock = await Inventory.findOne({
       materialType: "FinishedFabric",
       lotNumber,
@@ -46,7 +61,7 @@ export const createSale = async (req, res) => {
       });
     }
 
-    // 3️⃣ Deduct stock safely
+    // ✅ 3️⃣ Deduct Stock
     await deductStock({
       materialType: "FinishedFabric",
       lotNumber,
@@ -70,7 +85,6 @@ export const createSale = async (req, res) => {
       message: "Sale created successfully",
       data: sale,
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

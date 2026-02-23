@@ -8,6 +8,7 @@ import productionRoutes from "./routes/productionRoutes.js";
 import salesRoutes from "./routes/salesRoutes.js";
 import supplierRoutes from "./routes/supplierRoutes.js";
 import customerRoutes from "./routes/customerRoutes.js";
+import qcRoutes from "./routes/qcRoutes.js";
 
 
 const app = express();
@@ -23,5 +24,6 @@ app.use("/api/production", productionRoutes);
 app.use("/api/sales", salesRoutes);
 app.use("/api/suppliers", supplierRoutes);
 app.use("/api/customers", customerRoutes);
+app.use("/api/qc", qcRoutes);
 
 export default app;

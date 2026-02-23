@@ -82,6 +82,11 @@ export const createProduction = async (req, res) => {
       lotNumber: inputLotNumber,
     });
 
+    // 📊 Calculate Wastage & Efficiency
+    const wastage = inputQty - outputQty;
+    const wastagePercentage = (wastage / inputQty) * 100;
+    const efficiencyPercentage = (outputQty / inputQty) * 100;
+
     // ✅ Create Production Record
     const production = await Production.create({
       inputMaterialType,
@@ -90,6 +95,9 @@ export const createProduction = async (req, res) => {
       outputMaterialType,
       outputLotNumber,
       outputQuantity: outputQty,
+      wastage,
+      wastagePercentage: Number(wastagePercentage.toFixed(2)),
+      efficiencyPercentage: Number(efficiencyPercentage.toFixed(2)),
       status: "Completed",
       createdBy: req.user._id,
     });

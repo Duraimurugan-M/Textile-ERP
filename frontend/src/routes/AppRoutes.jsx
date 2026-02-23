@@ -13,6 +13,8 @@ import CustomerList from "../pages/customer/CustomerList";
 import AddCustomer from "../pages/customer/AddCustomer";
 import SupplierList from "../pages/supplier/SupplierList";
 import AddSupplier from "../pages/supplier/AddSupplier";
+import QCList from "../pages/qc/QCList";
+import AddQC from "../pages/qc/AddQC";
 
 
 const Dashboard = () => <h2>Dashboard</h2>;
@@ -139,7 +141,24 @@ const AppRoutes = () => {
             </Layout>
           }
         />
-        
+
+        <Route
+          path="/qc"
+          element={
+            <Layout>
+              <QCList />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/qc/add"
+          element={
+            <Layout>
+              <AddQC />
+            </Layout>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

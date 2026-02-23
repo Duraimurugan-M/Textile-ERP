@@ -80,6 +80,16 @@ const Sidebar = () => {
         Suppliers
       </NavLink>
 
+        <NavLink
+        to="/qc"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaTruck />
+        QC
+      </NavLink>
+
     </div>
   );
 };

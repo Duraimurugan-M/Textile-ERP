@@ -18,7 +18,7 @@ const AddSales = () => {
     ratePerUnit: "",
   });
 
-  // 🔹 Load customers
+  // ✅ Load Customers
   useEffect(() => {
     const loadCustomers = async () => {
       const { data } = await API.get("/customers");
@@ -27,15 +27,32 @@ const AddSales = () => {
     loadCustomers();
   }, []);
 
-  // 🔹 Load finished fabric lots
+  // ✅ Load Only QC Approved FinishedFabric Lots
   useEffect(() => {
     const loadLots = async () => {
-      const { data } = await API.get("/inventory");
-      const finishedLots = data.data.filter(
-        (item) => item.materialType === "FinishedFabric" && item.quantity > 0,
-      );
-      setLots(finishedLots);
+      try {
+        const qcRes = await API.get("/qc");
+        const inventoryRes = await API.get("/inventory");
+
+        // Get Approved QC lots
+        const approvedLots = qcRes.data.data.filter(
+          (qc) => qc.status === "Approved"
+        );
+
+        // Match with inventory & quantity > 0
+        const validLots = inventoryRes.data.data.filter(
+          (inv) =>
+            inv.materialType === "FinishedFabric" &&
+            inv.quantity > 0 &&
+            approvedLots.some((qc) => qc.lotNumber === inv.lotNumber)
+        );
+
+        setLots(validLots);
+      } catch (error) {
+        console.error(error);
+      }
     };
+
     loadLots();
   }, []);
 
@@ -53,6 +70,11 @@ const AddSales = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (Number(form.quantity) <= 0) {
+      alert("Quantity must be greater than 0");
+      return;
+    }
+
     if (Number(form.quantity) > availableQty) {
       alert("Quantity exceeds available stock!");
       return;
@@ -66,9 +88,10 @@ const AddSales = () => {
     }
   };
 
-  const total = form.quantity && form.ratePerUnit
-    ? form.quantity * form.ratePerUnit
-    : 0;
+  const total =
+    form.quantity && form.ratePerUnit
+      ? Number(form.quantity) * Number(form.ratePerUnit)
+      : 0;
 
   return (
     <div className={styles.container}>
@@ -90,17 +113,17 @@ const AddSales = () => {
           ))}
         </select>
 
-        {/* Material fixed */}
+        {/* Material Fixed */}
         <input type="text" value="FinishedFabric" disabled />
 
-        {/* Lot dropdown */}
+        {/* Lot Dropdown */}
         <select
           name="lotNumber"
           value={form.lotNumber}
           onChange={handleChange}
           required
         >
-          <option value="">Select Lot</option>
+          <option value="">Select Approved Lot</option>
           {lots.map((lot) => (
             <option key={lot._id} value={lot.lotNumber}>
               {lot.lotNumber} (Available: {lot.quantity})
@@ -108,23 +131,27 @@ const AddSales = () => {
           ))}
         </select>
 
+        {/* Quantity */}
         <input
           type="number"
           name="quantity"
           placeholder={`Available: ${availableQty}`}
+          value={form.quantity}
           onChange={handleChange}
           required
         />
 
+        {/* Rate */}
         <input
           type="number"
           name="ratePerUnit"
           placeholder="Rate Per Unit"
+          value={form.ratePerUnit}
           onChange={handleChange}
           required
         />
 
-        <div style={{ fontWeight: "bold" }}>
+        <div style={{ fontWeight: "bold", fontSize: "15px" }}>
           Total: ₹{total}
         </div>
 

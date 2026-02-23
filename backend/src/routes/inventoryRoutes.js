@@ -1,9 +1,9 @@
 import express from "express";
 import {
   createStock,
-  fetchAllStock,
   consumeStock,
   deleteAllStock,
+  getInventory,
 } from "../controllers/inventoryController.js";
 
 import  authMiddleware  from "../middleware/authMiddleware.js";
@@ -24,7 +24,7 @@ router.get(
   "/",
   authMiddleware,
   checkPermission("inventory", "view"),
-  fetchAllStock
+  getInventory
 );
 
 // Reduce stock (used in production later)

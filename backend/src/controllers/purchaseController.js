@@ -2,6 +2,7 @@ import Purchase from "../models/Purchase.js";
 import { addStock } from "../services/inventoryService.js";
 import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
+import QueryFeatures from "../utils/queryFeatures.js";
 
 export const createPurchase = async (req, res) => {
   try {
@@ -69,14 +70,24 @@ export const createPurchase = async (req, res) => {
 
 export const getPurchases = async (req, res) => {
   try {
-    const purchases = await Purchase.find()
+    const totalRecords = await Purchase.countDocuments();
+
+    const features = new QueryFeatures(Purchase, req.query)
+      .filter()
+      .search(["lotNumber"])
+      .sort()
+      .paginate();
+
+    const purchases = await features.query
       .populate("supplier", "supplierName phone")
-      .populate("purchasedBy", "name email")
-      .sort({ createdAt: -1 });
+      .populate("purchasedBy", "name email");
 
     res.json({
       success: true,
       data: purchases,
+      currentPage: features.page,
+      totalPages: Math.ceil(totalRecords / features.limit),
+      totalRecords,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

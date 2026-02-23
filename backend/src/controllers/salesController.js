@@ -3,6 +3,7 @@ import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
 import { deductStock } from "../services/inventoryService.js";
 import QC from "../models/QC.js";
+import QueryFeatures from "../utils/queryFeatures.js";
 
 // ✅ Create Sale
 export const createSale = async (req, res) => {
@@ -102,14 +103,24 @@ export const createSale = async (req, res) => {
 // ✅ Get Sales
 export const getSales = async (req, res) => {
   try {
-    const sales = await Sales.find()
+    const totalRecords = await Sales.countDocuments();
+
+    const features = new QueryFeatures(Sales, req.query)
+      .filter()
+      .search(["lotNumber"])
+      .sort()
+      .paginate();
+
+    const sales = await features.query
       .populate("customer", "customerName phone")
-      .populate("soldBy", "name")
-      .sort({ createdAt: -1 });
+      .populate("soldBy", "name");
 
     res.json({
       success: true,
       data: sales,
+      currentPage: features.page,
+      totalPages: Math.ceil(totalRecords / features.limit),
+      totalRecords,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

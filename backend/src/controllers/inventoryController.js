@@ -5,6 +5,8 @@ import {
   getAllStock
 } from "../services/inventoryService.js";
 
+import QueryFeatures from "../utils/queryFeatures.js";
+
 // ➕ Add Stock
 export const createStock = async (req, res) => {
   try {
@@ -24,13 +26,24 @@ export const createStock = async (req, res) => {
 };
 
 // 📦 Get All Stock
-export const fetchAllStock = async (req, res) => {
+export const getInventory = async (req, res) => {
   try {
-    const stock = await getAllStock();
+    const totalRecords = await Inventory.countDocuments();
 
-    res.status(200).json({
+    const features = new QueryFeatures(Inventory, req.query)
+      .filter()
+      .search(["lotNumber"])
+      .sort()
+      .paginate();
+
+    const inventory = await features.query;
+
+    res.json({
       success: true,
-      data: stock,
+      data: inventory,
+      currentPage: features.page,
+      totalPages: Math.ceil(totalRecords / features.limit),
+      totalRecords,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

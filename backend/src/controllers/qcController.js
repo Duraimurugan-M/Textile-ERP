@@ -1,5 +1,6 @@
 import QC from "../models/QC.js";
 import Inventory from "../models/Inventory.js";
+import QueryFeatures from "../utils/queryFeatures.js";
 
 export const createQC = async (req, res) => {
   try {
@@ -50,17 +51,26 @@ export const createQC = async (req, res) => {
   }
 };
 
-export const getQCList = async (req, res) => {
+export const getQCRecords = async (req, res) => {
   try {
-    const qcList = await QC.find()
-      .populate("inspectedBy", "name")
-      .sort({ createdAt: -1 });
+    const totalRecords = await QC.countDocuments();
+
+    const features = new QueryFeatures(QC, req.query)
+      .filter()
+      .search(["lotNumber", "grade"])
+      .sort()
+      .paginate();
+
+    const qc = await features.query
+      .populate("inspectedBy", "name");
 
     res.json({
       success: true,
-      data: qcList,
+      data: qc,
+      currentPage: features.page,
+      totalPages: Math.ceil(totalRecords / features.limit),
+      totalRecords,
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

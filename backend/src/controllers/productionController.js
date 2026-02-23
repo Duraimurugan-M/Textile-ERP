@@ -2,6 +2,7 @@ import Production from "../models/Production.js";
 import { addStock, deductStock } from "../services/inventoryService.js";
 import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
+import QueryFeatures from "../utils/queryFeatures.js";
 
 // ✅ Create Production
 export const createProduction = async (req, res) => {
@@ -157,13 +158,23 @@ export const createProduction = async (req, res) => {
 // ✅ Get Productions
 export const getProductions = async (req, res) => {
   try {
-    const productions = await Production.find()
-      .populate("createdBy", "name email")
-      .sort({ createdAt: -1 });
+    const totalRecords = await Production.countDocuments();
+
+    const features = new QueryFeatures(Production, req.query)
+      .filter()
+      .search(["inputLotNumber", "outputLotNumber"])
+      .sort()
+      .paginate();
+
+    const productions = await features.query
+      .populate("createdBy", "name email");
 
     res.json({
       success: true,
       data: productions,
+      currentPage: features.page,
+      totalPages: Math.ceil(totalRecords / features.limit),
+      totalRecords,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

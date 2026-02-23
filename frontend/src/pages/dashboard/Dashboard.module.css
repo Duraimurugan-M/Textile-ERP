@@ -1,0 +1,58 @@
+.container {
+  padding: 20px;
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card,
+.cardAlert,
+.cardWarning {
+  padding: 20px;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.card h4 {
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.card p {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.cardAlert {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.cardWarning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.section {
+  margin-top: 40px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import Layout from "../components/layout/Layout";
+import Dashboard from "../pages/dashboard/Dashboard";
 import InventoryList from "../pages/inventory/InventoryList";
 import AddInventory from "../pages/inventory/AddInventory";
 import PurchaseList from "../pages/purchase/PurchaseList";
@@ -16,8 +17,6 @@ import AddSupplier from "../pages/supplier/AddSupplier";
 import QCList from "../pages/qc/QCList";
 import AddQC from "../pages/qc/AddQC";
 import StockMovementList from "../pages/stockMovement/StockMovementList";
-
-const Dashboard = () => <h2>Dashboard</h2>;
 
 const AppRoutes = () => {
   return (
@@ -69,7 +68,7 @@ const AppRoutes = () => {
             </Layout>
           }
         />
-        {/* Production List */}
+
         <Route
           path="/production"
           element={
@@ -79,7 +78,6 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Add Production */}
         <Route
           path="/production/add"
           element={
@@ -89,7 +87,6 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Sales */}
         <Route
           path="/sales"
           element={
@@ -98,6 +95,7 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+
         <Route
           path="/sales/add"
           element={
@@ -115,6 +113,7 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+
         <Route
           path="/customer/add"
           element={

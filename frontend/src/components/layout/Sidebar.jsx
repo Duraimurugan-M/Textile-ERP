@@ -91,7 +91,7 @@ const Sidebar = () => {
           `${styles.navItem} ${isActive ? styles.active : ""}`
         }
       >
-        <FaTruck />
+        <FaIndustry />
         QC
       </NavLink>
 
@@ -101,8 +101,8 @@ const Sidebar = () => {
           `${styles.navItem} ${isActive ? styles.active : ""}`
         }
       >
-        <FaTruck />
-        Stack Movement
+        <FaTruckLoading />
+        Stock Movement
       </NavLink>
     </div>
   );

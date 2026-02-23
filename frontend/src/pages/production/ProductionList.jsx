@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../../api/axios";
 import styles from "./ProductionList.module.css";
 import { Link } from "react-router-dom";
+import DataTable from "../../components/common/DataTable";
 
 const ProductionList = () => {
   const [productions, setProductions] = useState([]);
@@ -22,6 +23,16 @@ const ProductionList = () => {
     fetchProductions();
   }, []);
 
+  const columns = [
+    { key: "inputLotNumber", label: "Input Lot" },
+    { key: "inputQuantity", label: "Input Qty" },
+    { key: "outputLotNumber", label: "Output Lot" },
+    { key: "outputQuantity", label: "Output Qty" },
+    { key: "wastage", label: "Wastage" },
+    { key: "wastagePercentage", label: "Wastage %" },
+    { key: "efficiencyPercentage", label: "Efficiency %" },
+  ];
+
   return (
     <div className="page-container">
       <div className={styles.container}>
@@ -36,71 +47,11 @@ const ProductionList = () => {
           <p>Loading...</p>
         ) : (
           <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Input Lot</th>
-                  <th>Input Qty</th>
-                  <th>Output Lot</th>
-                  <th>Output Qty</th>
-                  <th>Wastage</th>
-                  <th>Wastage %</th>
-                  <th>Efficiency %</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productions.length === 0 ? (
-                  <tr>
-                    <td colSpan="8" className={styles.noData}>
-                      No production records found
-                    </td>
-                  </tr>
-                ) : (
-                  productions.map((item) => (
-                    <tr key={item._id}>
-                      <td>{item.inputLotNumber}</td>
-                      <td>{item.inputQuantity}</td>
-                      <td>{item.outputLotNumber}</td>
-                      <td>{item.outputQuantity}</td>
-
-                      {/* 🆕 Wastage */}
-                      <td>{item.wastage}</td>
-
-                      {/* 🆕 Wastage % */}
-                      <td>
-                        <span
-                          className={
-                            item.wastagePercentage > 10
-                              ? styles.highWastage
-                              : styles.normalWastage
-                          }
-                        >
-                          {item.wastagePercentage}%
-                        </span>
-                      </td>
-
-                      {/* 🆕 Efficiency */}
-                      <td>
-                        <span
-                          className={
-                            item.efficiencyPercentage < 90
-                              ? styles.lowEfficiency
-                              : styles.goodEfficiency
-                          }
-                        >
-                          {item.efficiencyPercentage}%
-                        </span>
-                      </td>
-
-                      <td>
-                        <span className={styles.status}>{item.status}</span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+            <DataTable
+              columns={columns}
+              data={productions}
+              searchField="inputLotNumber"
+            />
           </div>
         )}
       </div>

@@ -8,27 +8,18 @@ const ProductionList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true; // Prevent memory leaks
-
     const fetchProductions = async () => {
       try {
         const { data } = await API.get("/production");
-
-        if (isMounted) {
-          setProductions(data.data);
-          setLoading(false);
-        }
+        setProductions(data.data || []);
       } catch (error) {
         console.error("Error fetching production", error);
-        if (isMounted) setLoading(false);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProductions();
-
-    return () => {
-      isMounted = false; // Cleanup
-    };
   }, []);
 
   return (
@@ -52,13 +43,16 @@ const ProductionList = () => {
                   <th>Input Qty</th>
                   <th>Output Lot</th>
                   <th>Output Qty</th>
+                  <th>Wastage</th>
+                  <th>Wastage %</th>
+                  <th>Efficiency %</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {productions.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className={styles.noData}>
+                    <td colSpan="8" className={styles.noData}>
                       No production records found
                     </td>
                   </tr>
@@ -69,10 +63,38 @@ const ProductionList = () => {
                       <td>{item.inputQuantity}</td>
                       <td>{item.outputLotNumber}</td>
                       <td>{item.outputQuantity}</td>
+
+                      {/* 🆕 Wastage */}
+                      <td>{item.wastage}</td>
+
+                      {/* 🆕 Wastage % */}
                       <td>
-                        <span className={styles.status}>
-                          {item.status}
+                        <span
+                          className={
+                            item.wastagePercentage > 10
+                              ? styles.highWastage
+                              : styles.normalWastage
+                          }
+                        >
+                          {item.wastagePercentage}%
                         </span>
+                      </td>
+
+                      {/* 🆕 Efficiency */}
+                      <td>
+                        <span
+                          className={
+                            item.efficiencyPercentage < 90
+                              ? styles.lowEfficiency
+                              : styles.goodEfficiency
+                          }
+                        >
+                          {item.efficiencyPercentage}%
+                        </span>
+                      </td>
+
+                      <td>
+                        <span className={styles.status}>{item.status}</span>
                       </td>
                     </tr>
                   ))

@@ -15,7 +15,7 @@ import SupplierList from "../pages/supplier/SupplierList";
 import AddSupplier from "../pages/supplier/AddSupplier";
 import QCList from "../pages/qc/QCList";
 import AddQC from "../pages/qc/AddQC";
-
+import StockMovementList from "../pages/stockMovement/StockMovementList";
 
 const Dashboard = () => <h2>Dashboard</h2>;
 
@@ -156,6 +156,15 @@ const AppRoutes = () => {
           element={
             <Layout>
               <AddQC />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/stock-movement"
+          element={
+            <Layout>
+              <StockMovementList />
             </Layout>
           }
         />

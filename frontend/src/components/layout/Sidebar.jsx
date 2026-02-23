@@ -1,9 +1,14 @@
 import { NavLink } from "react-router-dom";
-import { FaBox, FaShoppingCart, FaTachometerAlt, FaTruck, FaTruckLoading } from "react-icons/fa";
+import {
+  FaBox,
+  FaShoppingCart,
+  FaTachometerAlt,
+  FaTruck,
+  FaTruckLoading,
+} from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import { FaIndustry } from "react-icons/fa";
 import { FaUserFriends } from "react-icons/fa";
-
 
 const Sidebar = () => {
   return (
@@ -50,7 +55,7 @@ const Sidebar = () => {
         Production
       </NavLink>
 
-        <NavLink
+      <NavLink
         to="/sales"
         className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
@@ -80,7 +85,7 @@ const Sidebar = () => {
         Suppliers
       </NavLink>
 
-        <NavLink
+      <NavLink
         to="/qc"
         className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
@@ -90,6 +95,15 @@ const Sidebar = () => {
         QC
       </NavLink>
 
+      <NavLink
+        to="/stock-movement"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaTruck />
+        Stack Movement
+      </NavLink>
     </div>
   );
 };

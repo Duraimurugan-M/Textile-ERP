@@ -1,120 +1,156 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../../api/axios";
 import styles from "./Dashboard.module.css";
+
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
-  Title,
   Tooltip,
   Legend,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
+  const [range, setRange] = useState("monthly");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchDashboard();
-  }, []);
+    const fetchDashboard = async () => {
+      try {
+        const res = await API.get(`/dashboard?range=${range}`);
+        setData(res.data.data || res.data);
+      } catch (err) {
+        console.error("Dashboard Error:", err);
+      }
+    };
 
-  const fetchDashboard = async () => {
-    try {
-      const res = await API.get("/dashboard");
-      setData(res.data.data);
-    } catch (error) {
-      console.error("Dashboard error", error);
-    }
-  };
+    fetchDashboard();
+  }, [range]);
 
   if (!data) return <p>Loading dashboard...</p>;
 
-  // 🔹 Monthly Sales Chart Data
+  /* ---------------- CHART DATA ---------------- */
+
   const chartData = {
-    labels: data.monthlySales.map(
-      (item) => `${item._id.month}/${item._id.year}`
-    ),
+    labels: data.monthlySales?.map((item) => {
+      if (range === "yearly") return item._id.year;
+      if (range === "weekly") return `W${item._id.week}`;
+      if (range === "daily")
+        return `${item._id.day}/${item._id.month}`;
+      return `${item._id.month}/${item._id.year}`;
+    }) || [],
     datasets: [
       {
-        label: "Monthly Sales",
-        data: data.monthlySales.map((item) => item.totalSales),
+        label: "Sales",
+        data:
+          data.monthlySales?.map((item) => item.totalSales) || [],
         backgroundColor: "#4f46e5",
       },
     ],
   };
 
+  /* ---------------- UI ---------------- */
+
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Management Dashboard</h2>
+      <h1 className={styles.title}>Management Dashboard</h1>
 
-      {/* KPI CARDS */}
-      <div className={styles.cardGrid}>
+      {/* ================= KPI CARDS ================= */}
+      <div className={styles.kpiGrid}>
         <div className={styles.card}>
           <h4>Total Stock Qty</h4>
-          <p>{data.totalStockQuantity}</p>
+          <p>{data.totalStockQuantity ?? 0}</p>
         </div>
 
         <div className={styles.card}>
           <h4>Total Stock Value</h4>
-          <p>₹ {data.totalStockValue}</p>
+          <p>₹ {data.totalStockValue ?? 0}</p>
         </div>
 
         <div className={styles.card}>
           <h4>Today's Production</h4>
-          <p>{data.todayProductionCount}</p>
+          <p>{data.todayProductionCount ?? 0}</p>
         </div>
 
         <div className={styles.card}>
           <h4>Today's Sales</h4>
-          <p>₹ {data.todaySalesAmount}</p>
+          <p>₹ {data.todaySalesAmount ?? 0}</p>
         </div>
 
-        <div className={styles.cardAlert}>
+        <div
+          className={`${styles.card} ${styles.alertCard}`}
+          onClick={() => navigate("/inventory?lowStock=true")}
+        >
           <h4>Low Stock Alerts</h4>
-          <p>{data.lowStockCount}</p>
+          <p>{data.lowStockCount ?? 0}</p>
         </div>
 
-        <div className={styles.cardWarning}>
+        <div
+          className={`${styles.card} ${styles.warningCard}`}
+          onClick={() => navigate("/qc?status=Pending")}
+        >
           <h4>QC Pending</h4>
-          <p>{data.qcPendingCount}</p>
+          <p>{data.qcPendingCount ?? 0}</p>
         </div>
       </div>
 
-      {/* TOP CUSTOMERS */}
-      <div className={styles.section}>
-        <h3>Top Customers</h3>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Customer</th>
-              <th>Total Purchase</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.topCustomers.map((cust, index) => (
-              <tr key={index}>
-                <td>{cust.customerName}</td>
-                <td>₹ {cust.totalPurchase}</td>
+      {/* ================= BOTTOM SECTION ================= */}
+      <div className={styles.bottomGrid}>
+        {/* -------- TOP CUSTOMERS -------- */}
+        <div className={styles.tableSection}>
+          <h3>Top Customers</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Total Purchase</th>
+                <th>Orders</th>
+                <th>Last Purchase</th>
+                <th>Main Product</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {data.topCustomers?.map((cust) => (
+                <tr key={cust.customerName}>
+                  <td>{cust.customerName}</td>
+                  <td>₹ {cust.totalPurchase}</td>
+                  <td>{cust.totalOrders}</td>
+                  <td>
+                    {cust.lastPurchase
+                      ? new Date(cust.lastPurchase).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>{cust.mostProduct}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      {/* MONTHLY SALES GRAPH */}
-      <div className={styles.section}>
-        <h3>Monthly Sales Overview</h3>
-        <Bar data={chartData} />
+        {/* -------- SALES CHART -------- */}
+        <div className={styles.chartSection}>
+          <div className={styles.chartHeader}>
+            <h3>Sales Overview</h3>
+
+            <select
+              value={range}
+              onChange={(e) => setRange(e.target.value)}
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+
+          <Bar data={chartData} />
+        </div>
       </div>
     </div>
   );

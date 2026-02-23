@@ -1,27 +1,43 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../api/axios";
+import DataTable from "../../components/common/DataTable";
 import styles from "./PurchaseList.module.css";
 
 const PurchaseList = () => {
   const [purchases, setPurchases] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
-  const fetchPurchases = async () => {
+  const fetchPurchases = async (params) => {
     try {
-      const { data } = await API.get("/purchase");
+      const query = new URLSearchParams(params).toString();
+      const { data } = await API.get(`/purchase?${query}`);
+
       setPurchases(data.data);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching purchases", error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPurchases();
-  }, []);
+  const columns = [
+    {
+      key: "supplier",
+      label: "Supplier",
+      render: (row) => row.supplier?.supplierName || "N/A",
+    },
+    { key: "materialType", label: "Material" },
+    { key: "lotNumber", label: "Lot" },
+    { key: "quantity", label: "Quantity" },
+    { key: "unit", label: "Unit" },
+    {
+      key: "createdAt",
+      label: "Date",
+      render: (row) =>
+        new Date(row.createdAt).toLocaleDateString(),
+    },
+  ];
 
   return (
     <div className={styles.container}>
@@ -35,46 +51,14 @@ const PurchaseList = () => {
         </button>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Supplier</th>
-                <th>Material Type</th>
-                <th>Lot Number</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Purchase Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {purchases.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className={styles.noData}>
-                    No purchase records found
-                  </td>
-                </tr>
-              ) : (
-                purchases.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.supplier ? item.supplier.supplierName : "N/A"}</td>
-                    <td>{item.materialType}</td>
-                    <td>{item.lotNumber}</td>
-                    <td>{item.quantity}</td>
-                    <td>{item.unit}</td>
-                    <td>
-                      {new Date(item.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        columns={columns}
+        data={purchases}
+        serverMode={true}
+        totalPages={totalPages}
+        onFetchData={fetchPurchases}
+        searchField="lotNumber"
+      />
     </div>
   );
 };

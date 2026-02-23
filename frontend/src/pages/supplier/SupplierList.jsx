@@ -1,26 +1,32 @@
-import { useEffect, useState } from "react";
-import API from "../../api/axios";
-import styles from "./SupplierList.module.css";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import API from "../../api/axios";
+import DataTable from "../../components/common/DataTable";
+import styles from "./SupplierList.module.css";
 
 const SupplierList = () => {
   const [suppliers, setSuppliers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = async (params) => {
     try {
-      const { data } = await API.get("/suppliers");
+      const query = new URLSearchParams(params).toString();
+      const { data } = await API.get(`/suppliers?${query}`);
+
       setSuppliers(data.data);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching suppliers", error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchSuppliers();
-  }, []);
+  const columns = [
+    { key: "supplierName", label: "Supplier Name" },
+    { key: "contactPerson", label: "Contact Person" },
+    { key: "phone", label: "Phone" },
+    { key: "email", label: "Email" },
+    { key: "address", label: "Address" },
+  ];
 
   return (
     <div className={styles.container}>
@@ -31,42 +37,14 @@ const SupplierList = () => {
         </Link>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Contact Person</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Address</th>
-              </tr>
-            </thead>
-            <tbody>
-              {suppliers.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className={styles.noData}>
-                    No suppliers found
-                  </td>
-                </tr>
-              ) : (
-                suppliers.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.supplierName}</td>
-                    <td>{item.contactPerson}</td>
-                    <td>{item.phone}</td>
-                    <td>{item.email}</td>
-                    <td>{item.address}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        columns={columns}
+        data={suppliers}
+        serverMode={true}
+        totalPages={totalPages}
+        onFetchData={fetchSuppliers}
+        searchField="supplierName"
+      />
     </div>
   );
 };

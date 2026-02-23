@@ -1,30 +1,45 @@
-import { useEffect, useState } from "react";
-import API from "../../api/axios";
-import styles from "./InventoryList.module.css";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import API from "../../api/axios";
+import DataTable from "../../components/common/DataTable";
+import styles from "./InventoryList.module.css";
 
 const InventoryList = () => {
   const [inventory, setInventory] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
+  const navigate = useNavigate();
 
-  const fetchInventory = async () => {
+  // 🔹 Fetch inventory with server-side pagination
+  const fetchInventory = async (params) => {
     try {
-      const { data } = await API.get("/inventory");
-      setInventory(data.data);
+      const query = new URLSearchParams(params).toString();
+      const { data } = await API.get(`/inventory?${query}`);
+
+      setInventory(data.data || []);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching inventory", error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchInventory();
-  }, []);
-
-  const navigate = useNavigate();
-
+  const columns = [
+    { key: "materialType", label: "Material" },
+    { key: "lotNumber", label: "Lot Number" },
+    { key: "quantity", label: "Quantity" },
+    { key: "unit", label: "Unit" },
+    {
+      key: "status",
+      label: "Status",
+      render: (row) => (
+        <span
+          className={`${styles.status} ${styles[row.status]}`}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+    { key: "location", label: "Location" },
+  ];
 
   return (
     <div className={styles.container}>
@@ -38,50 +53,14 @@ const InventoryList = () => {
         </button>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Material</th>
-                <th>Lot Number</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Status</th>
-                <th>Location</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inventory.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className={styles.noData}>
-                    No inventory records found
-                  </td>
-                </tr>
-              ) : (
-                inventory.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.materialType}</td>
-                    <td>{item.lotNumber}</td>
-                    <td>{item.quantity}</td>
-                    <td>{item.unit}</td>
-                    <td>
-                      <span
-                        className={`${styles.status} ${styles[item.status]}`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-                    <td>{item.location}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        columns={columns}
+        data={inventory}
+        serverMode={true}
+        totalPages={totalPages}
+        onFetchData={fetchInventory}
+        searchField="lotNumber"
+      />
     </div>
   );
 };

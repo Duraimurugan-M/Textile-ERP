@@ -1,53 +1,39 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import styles from "./DataTable.module.css";
 
-const DataTable = ({ columns, data, searchField = "" }) => {
+const DataTable = ({
+  columns,
+  data,
+  serverMode = false,
+  totalPages = 1,
+  onFetchData,
+  searchField = "",
+}) => {
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState({
-    key: null,
-    direction: "asc",
-  });
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [order, setOrder] = useState("desc");
 
-  // 🔎 Filtering
-  const filteredData = useMemo(() => {
-    if (!searchField || !search) return data;
-
-    return data.filter((item) =>
-      item[searchField]
-        ?.toString()
-        .toLowerCase()
-        .includes(search.toLowerCase()),
-    );
-  }, [data, search, searchField]);
-
-  // 🔽 Sorting
-  const sortedData = useMemo(() => {
-    if (!sortConfig.key) return filteredData;
-
-    return [...filteredData].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key])
-        return sortConfig.direction === "asc" ? -1 : 1;
-      if (a[sortConfig.key] > b[sortConfig.key])
-        return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [filteredData, sortConfig]);
-
-  // 📄 Pagination
-  const totalPages = Math.ceil(sortedData.length / rowsPerPage);
-  const paginatedData = sortedData.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage,
-  );
+  // 🔥 If server mode, fetch whenever change
+  useEffect(() => {
+    if (serverMode && onFetchData) {
+      onFetchData({
+        page: currentPage,
+        limit: rowsPerPage,
+        search,
+        sortBy,
+        order,
+      });
+    }
+  }, [currentPage, rowsPerPage, search, sortBy, order]);
 
   const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
+    const newOrder =
+      sortBy === key && order === "asc" ? "desc" : "asc";
+
+    setSortBy(key);
+    setOrder(newOrder);
   };
 
   return (
@@ -77,23 +63,23 @@ const DataTable = ({ columns, data, searchField = "" }) => {
                 className={styles.sortable}
               >
                 {col.label}
-                {sortConfig.key === col.key &&
-                  (sortConfig.direction === "asc" ? " 🔼" : " 🔽")}
+                {sortBy === col.key &&
+                  (order === "asc" ? " 🔼" : " 🔽")}
               </th>
             ))}
           </tr>
         </thead>
 
         <tbody>
-          {paginatedData.length === 0 ? (
+          {data.length === 0 ? (
             <tr>
               <td colSpan={columns.length} className={styles.noData}>
                 No data found
               </td>
             </tr>
           ) : (
-            paginatedData.map((row, index) => (
-              <tr key={index}>
+            data.map((row) => (
+              <tr key={row._id}>
                 {columns.map((col) => (
                   <td key={col.key}>
                     {col.render ? col.render(row) : row[col.key]}
@@ -105,10 +91,10 @@ const DataTable = ({ columns, data, searchField = "" }) => {
         </tbody>
       </table>
 
-      {/* 📄 Gmail Style Pagination */}
+      {/* 📄 Pagination */}
       <div className={styles.pagination}>
         <div>
-          Rows per page:
+          Rows:
           <select
             value={rowsPerPage}
             onChange={(e) => {
@@ -124,7 +110,7 @@ const DataTable = ({ columns, data, searchField = "" }) => {
         </div>
 
         <div>
-          {currentPage} / {totalPages}
+          Page {currentPage} of {totalPages}
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => p - 1)}

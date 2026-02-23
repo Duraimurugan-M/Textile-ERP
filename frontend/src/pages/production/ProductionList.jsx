@@ -1,27 +1,24 @@
-import { useEffect, useState } from "react";
-import API from "../../api/axios";
-import styles from "./ProductionList.module.css";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import API from "../../api/axios";
 import DataTable from "../../components/common/DataTable";
+import styles from "./ProductionList.module.css";
 
 const ProductionList = () => {
   const [productions, setProductions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    const fetchProductions = async () => {
-      try {
-        const { data } = await API.get("/production");
-        setProductions(data.data || []);
-      } catch (error) {
-        console.error("Error fetching production", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchProductions = async (params) => {
+    try {
+      const query = new URLSearchParams(params).toString();
+      const { data } = await API.get(`/production?${query}`);
 
-    fetchProductions();
-  }, []);
+      setProductions(data.data);
+      setTotalPages(data.totalPages);
+    } catch (error) {
+      console.error("Error fetching production", error);
+    }
+  };
 
   const columns = [
     { key: "inputLotNumber", label: "Input Lot" },
@@ -34,27 +31,22 @@ const ProductionList = () => {
   ];
 
   return (
-    <div className="page-container">
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h2>Production Management</h2>
-          <Link to="/production/add" className={styles.addBtn}>
-            + Add Production
-          </Link>
-        </div>
-
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <div className={styles.tableWrapper}>
-            <DataTable
-              columns={columns}
-              data={productions}
-              searchField="inputLotNumber"
-            />
-          </div>
-        )}
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h2>Production Management</h2>
+        <Link to="/production/add" className={styles.addBtn}>
+          + Add Production
+        </Link>
       </div>
+
+      <DataTable
+        columns={columns}
+        data={productions}
+        serverMode={true}
+        totalPages={totalPages}
+        onFetchData={fetchProductions}
+        searchField="inputLotNumber"
+      />
     </div>
   );
 };

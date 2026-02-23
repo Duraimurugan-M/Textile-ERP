@@ -1,26 +1,50 @@
-import { useEffect, useState } from "react";
-import API from "../../api/axios";
-import styles from "./QCList.module.css";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import API from "../../api/axios";
+import DataTable from "../../components/common/DataTable";
+import styles from "./QCList.module.css";
 
 const QCList = () => {
   const [qcList, setQcList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchQC = async () => {
+  const fetchQC = async (params) => {
     try {
-      const { data } = await API.get("/qc");
+      const query = new URLSearchParams(params).toString();
+      const { data } = await API.get(`/qc?${query}`);
+
       setQcList(data.data);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching QC", error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchQC();
-  }, []);
+  const columns = [
+    { key: "lotNumber", label: "Lot" },
+    { key: "gsm", label: "GSM" },
+    { key: "width", label: "Width" },
+    {
+      key: "defectPercentage",
+      label: "Defect %",
+      render: (row) => `${row.defectPercentage}%`,
+    },
+    { key: "grade", label: "Grade" },
+    {
+      key: "status",
+      label: "Status",
+      render: (row) => (
+        <span
+          style={{
+            color: row.status === "Approved" ? "green" : "red",
+            fontWeight: "600",
+          }}
+        >
+          {row.status}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div className={styles.container}>
@@ -31,54 +55,14 @@ const QCList = () => {
         </Link>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Lot</th>
-                <th>GSM</th>
-                <th>Width</th>
-                <th>Defect %</th>
-                <th>Grade</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {qcList.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className={styles.noData}>
-                    No QC records found
-                  </td>
-                </tr>
-              ) : (
-                qcList.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.lotNumber}</td>
-                    <td>{item.gsm}</td>
-                    <td>{item.width}</td>
-                    <td>{item.defectPercentage}%</td>
-                    <td>{item.grade}</td>
-                    <td>
-                      <span
-                        className={
-                          item.status === "Approved"
-                            ? styles.statusApproved
-                            : styles.statusRejected
-                        }
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        columns={columns}
+        data={qcList}
+        serverMode={true}
+        totalPages={totalPages}
+        onFetchData={fetchQC}
+        searchField="lotNumber"
+      />
     </div>
   );
 };

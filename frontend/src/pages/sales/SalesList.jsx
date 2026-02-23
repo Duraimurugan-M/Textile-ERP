@@ -1,26 +1,45 @@
-import { useEffect, useState } from "react";
-import API from "../../api/axios";
-import styles from "./SalesList.module.css";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import API from "../../api/axios";
+import DataTable from "../../components/common/DataTable";
+import styles from "./SalesList.module.css";
 
 const SalesList = () => {
   const [sales, setSales] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchSales = async () => {
+  const fetchSales = async (params) => {
     try {
-      const { data } = await API.get("/sales");
+      const query = new URLSearchParams(params).toString();
+      const { data } = await API.get(`/sales?${query}`);
+
       setSales(data.data);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching sales", error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchSales();
-  }, []);
+  const columns = [
+    {
+      key: "customer",
+      label: "Customer",
+      render: (row) => row.customer?.customerName || "N/A",
+    },
+    { key: "materialType", label: "Material" },
+    { key: "lotNumber", label: "Lot" },
+    { key: "quantity", label: "Qty" },
+    {
+      key: "ratePerUnit",
+      label: "Rate",
+      render: (row) => `₹${row.ratePerUnit}`,
+    },
+    {
+      key: "totalAmount",
+      label: "Total",
+      render: (row) => `₹${row.totalAmount}`,
+    },
+  ];
 
   return (
     <div className={styles.container}>
@@ -31,44 +50,14 @@ const SalesList = () => {
         </Link>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Material</th>
-                <th>Lot</th>
-                <th>Qty</th>
-                <th>Rate</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sales.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className={styles.noData}>
-                    No sales records found
-                  </td>
-                </tr>
-              ) : (
-                sales.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.customer?.customerName || "N/A"}</td>
-                    <td>{item.materialType}</td>
-                    <td>{item.lotNumber}</td>
-                    <td>{item.quantity}</td>
-                    <td>₹{item.ratePerUnit}</td>
-                    <td>₹{item.totalAmount}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        columns={columns}
+        data={sales}
+        serverMode={true}
+        totalPages={totalPages}
+        onFetchData={fetchSales}
+        searchField="lotNumber"
+      />
     </div>
   );
 };

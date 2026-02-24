@@ -26,24 +26,40 @@ const YarnList = () => {
     { key: "composition", label: "Composition" },
     { key: "shade", label: "Shade" },
     { key: "lotNumber", label: "Lot Number" },
-    { key: "quantity", label: "Quantity" },
+
+    // ✅ Total Quantity
+    { key: "totalQuantity", label: "Total Qty" },
+
+    // ✅ Available Quantity
+    { key: "quantityAvailable", label: "Available" },
+
+    // ✅ In Job Work
+    { key: "quantityInJobWork", label: "In Job Work" },
+
     { key: "unit", label: "Unit" },
+
+    // ✅ Dynamic Status
     {
       key: "status",
       label: "Status",
-      render: (row) => (
-        <span
-          className={`${styles.badge} ${
-            row.status === "Available"
-              ? styles.available
-              : row.status === "SentToJobWork"
-              ? styles.inProcess
-              : styles.consumed
-          }`}
-        >
-          {row.status}
-        </span>
-      ),
+      render: (row) => {
+        let status = "Available";
+        let badgeClass = styles.available;
+
+        if (row.quantityInJobWork > 0 && row.quantityAvailable > 0) {
+          status = "Partially Sent";
+          badgeClass = styles.partial;
+        } else if (row.quantityAvailable === 0) {
+          status = "Fully Sent";
+          badgeClass = styles.full;
+        }
+
+        return (
+          <span className={`${styles.badge} ${badgeClass}`}>
+            {status}
+          </span>
+        );
+      },
     },
   ];
 

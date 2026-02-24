@@ -5,125 +5,97 @@ import {
   FaTachometerAlt,
   FaTruck,
   FaTruckLoading,
+  FaIndustry,
+  FaUserFriends,
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
-import { FaIndustry } from "react-icons/fa";
-import { FaUserFriends } from "react-icons/fa";
 
 const Sidebar = () => {
   return (
     <div className={styles.sidebar}>
+      
+      {/* Fixed Logo */}
       <div className={styles.logo}>TEXTILE ERP</div>
 
-      <NavLink
-        to="/dashboard"
-        className={({ isActive }) =>
+      {/* Scrollable Menu */}
+      <div className={styles.menu}>
+        <NavLink to="/dashboard" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaTachometerAlt />
-        Dashboard
-      </NavLink>
+        }>
+          <FaTachometerAlt />
+          Dashboard
+        </NavLink>
 
-      <NavLink
-        to="/purchase"
-        className={({ isActive }) =>
+        <NavLink to="/purchase" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaShoppingCart />
-        Purchase
-      </NavLink>
+        }>
+          <FaShoppingCart />
+          Purchase
+        </NavLink>
 
-      <NavLink
-        to="/inventory"
-        className={({ isActive }) =>
+        <NavLink to="/inventory" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaBox />
-        Inventory
-      </NavLink>
+        }>
+          <FaBox />
+          Inventory
+        </NavLink>
 
-      <NavLink
-        to="/production"
-        className={({ isActive }) =>
+        <NavLink to="/production" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaIndustry />
-        Production
-      </NavLink>
+        }>
+          <FaIndustry />
+          Production
+        </NavLink>
 
-      <NavLink
-        to="/sales"
-        className={({ isActive }) =>
+        <NavLink to="/sales" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaShoppingCart />
-        Sales
-      </NavLink>
+        }>
+          <FaShoppingCart />
+          Sales
+        </NavLink>
 
-      <NavLink
-        to="/customer"
-        className={({ isActive }) =>
+        <NavLink to="/customer" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaUserFriends />
-        Customer
-      </NavLink>
+        }>
+          <FaUserFriends />
+          Customer
+        </NavLink>
 
-      <NavLink
-        to="/supplier"
-        className={({ isActive }) =>
+        <NavLink to="/supplier" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaTruckLoading />
-        Suppliers
-      </NavLink>
+        }>
+          <FaTruckLoading />
+          Suppliers
+        </NavLink>
 
-      <NavLink
-        to="/qc"
-        className={({ isActive }) =>
+        <NavLink to="/qc" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaIndustry />
-        QC
-      </NavLink>
+        }>
+          <FaIndustry />
+          QC
+        </NavLink>
 
-      <NavLink
-        to="/stock-movement"
-        className={({ isActive }) =>
+        <NavLink to="/stock-movement" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaTruckLoading />
-        Stock Movement
-      </NavLink>
+        }>
+          <FaTruckLoading />
+          Stock Movement
+        </NavLink>
 
-      <NavLink
-        to="/yarn"
-        className={({ isActive }) =>
+        <NavLink to="/yarn" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaBox />
-        Yarn
-      </NavLink>
+        }>
+          <FaBox />
+          Yarn
+        </NavLink>
 
-      <NavLink
-        to="/vendors"
-        className={({ isActive }) =>
+        <NavLink to="/vendors" className={({ isActive }) =>
           `${styles.navItem} ${isActive ? styles.active : ""}`
-        }
-      >
-        <FaTruck />
-        Vendors
-      </NavLink>
+        }>
+          <FaTruck />
+          Vendors
+        </NavLink>
+      </div>
 
     </div>
   );

@@ -5,15 +5,44 @@
   color: white;
   padding: 20px;
   box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
 }
 
+/* Fixed Header */
 .logo {
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   letter-spacing: 1px;
+
+  flex-shrink: 0;
 }
 
+/* Scrollable Menu */
+.menu {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 5px;
+}
+
+/* Scrollbar Styling */
+.menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu::-webkit-scrollbar-thumb {
+  background-color: #334155;
+  border-radius: 10px;
+}
+
+.menu::-webkit-scrollbar-thumb:hover {
+  background-color: #475569;
+}
+
+/* Nav Items */
 .navItem {
   display: flex;
   align-items: center;
@@ -27,13 +56,11 @@
   box-sizing: border-box;
 }
 
-/* Hover effect */
 .navItem:hover {
   background-color: #334155;
   color: #ffffff;
 }
 
-/* Active route style */
 .active {
   background-color: #334155;
   color: #ffffff;

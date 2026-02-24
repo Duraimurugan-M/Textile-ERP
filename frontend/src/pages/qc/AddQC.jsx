@@ -16,26 +16,25 @@ const AddQC = () => {
     status: "Approved",
   });
 
-  useEffect(() => {
-    const fetchLots = async () => {
-      try {
-        const { data } = await API.get("/inventory");
+useEffect(() => {
+  const fetchLots = async () => {
+    try {
+      const { data } = await API.get("/inventory?status=InProcess");
 
-        // Only FinishedFabric with stock > 0
-        const finishedLots = data.data.filter(
-          (item) =>
-            item.materialType === "FinishedFabric" &&
-            item.quantity > 0
-        );
+      const finishedLots = data.data.filter(
+        (item) =>
+          item.materialType === "FinishedFabric" &&
+          item.quantity > 0
+      );
 
-        setLots(finishedLots);
-      } catch (error) {
-        console.error("Error loading lots", error);
-      }
-    };
+      setLots(finishedLots);
+    } catch (error) {
+      console.error("Error loading lots", error);
+    }
+  };
 
-    fetchLots();
-  }, []);
+  fetchLots();
+}, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

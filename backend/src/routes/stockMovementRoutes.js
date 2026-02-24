@@ -31,4 +31,15 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
+// Delete all stock movement records (Dev Only)
+router.delete("/delete-all", authMiddleware, async (req, res) => {
+  try {
+    await StockMovement.deleteMany();
+
+    res.json({ success: true, message: "All stock movements Deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

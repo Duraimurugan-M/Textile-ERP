@@ -75,3 +75,13 @@ export const getQCRecords = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// delete all qc rocords (Dev only)
+export const deleteQCRecords = async (req, res) => {
+  try {
+    await QC.deleteMany();
+    res.json({ success: true, message: "All QC records deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

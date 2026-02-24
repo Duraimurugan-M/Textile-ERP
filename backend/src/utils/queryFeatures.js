@@ -1,8 +1,7 @@
 class QueryFeatures {
-  constructor(model, queryString) {
-    this.model = model;
+  constructor(query, queryString) {
+    this.query = query; // ✅ Directly receive mongoose query
     this.queryString = queryString;
-    this.query = null;
   }
 
   filter() {
@@ -11,7 +10,9 @@ class QueryFeatures {
     const excludedFields = ["page", "limit", "sortBy", "order", "search"];
     excludedFields.forEach((el) => delete queryObj[el]);
 
-    this.query = this.model.find(queryObj);
+    // Apply filter on existing query
+    this.query = this.query.find(queryObj);
+
     return this;
   }
 
@@ -28,8 +29,9 @@ class QueryFeatures {
         })),
       };
 
-      this.query = this.model.find(searchQuery);
+      this.query = this.query.find(searchQuery);
     }
+
     return this;
   }
 
@@ -38,6 +40,7 @@ class QueryFeatures {
     const order = this.queryString.order === "asc" ? 1 : -1;
 
     this.query = this.query.sort({ [sortBy]: order });
+
     return this;
   }
 

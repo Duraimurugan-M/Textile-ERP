@@ -1,13 +1,10 @@
 import Inventory from "../models/Inventory.js";
-
-import {
-  addStock,
-  getAllStock
-} from "../services/inventoryService.js";
-
+import { addStock, deductStock } from "../services/inventoryService.js";
 import QueryFeatures from "../utils/queryFeatures.js";
 
-// ➕ Add Stock
+/* =====================================================
+   ➕ ADD STOCK
+===================================================== */
 export const createStock = async (req, res) => {
   try {
     const stock = await addStock({
@@ -25,17 +22,18 @@ export const createStock = async (req, res) => {
   }
 };
 
-// 📦 Get All Stock
+/* =====================================================
+   📦 GET INVENTORY (AVAILABLE ONLY)
+===================================================== */
 export const getInventory = async (req, res) => {
   try {
-    // Only show Available stock
-    req.query.status = "Available";
+    const baseQuery = Inventory.find({ status: "Available" });
 
     const totalRecords = await Inventory.countDocuments({
       status: "Available",
     });
 
-    const features = new QueryFeatures(Inventory, req.query)
+    const features = new QueryFeatures(baseQuery, req.query)
       .filter()
       .search(["lotNumber"])
       .sort()
@@ -51,29 +49,59 @@ export const getInventory = async (req, res) => {
       totalRecords,
     });
   } catch (error) {
+    console.error("Inventory Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// ➖ Reduce Stock
+/* =====================================================
+   ➖ CONSUME STOCK
+===================================================== */
 export const consumeStock = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { quantity } = req.body;
+    const { materialType, lotNumber, quantity } = req.body;
 
-    const updatedStock = await reduceStock(id, quantity);
+    if (!materialType || !lotNumber || !quantity) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const stock = await Inventory.findOne({
+      materialType,
+      lotNumber,
+    });
+
+    if (!stock) {
+      return res.status(400).json({ message: "Stock not found" });
+    }
+
+    if (stock.quantity < quantity) {
+      return res
+        .status(400)
+        .json({ message: "Insufficient stock quantity" });
+    }
+
+    stock.quantity -= quantity;
+
+    // If quantity becomes 0 → mark as Consumed
+    if (stock.quantity === 0) {
+      stock.status = "Consumed";
+    }
+
+    await stock.save();
 
     res.status(200).json({
       success: true,
-      message: "Stock updated successfully",
-      data: updatedStock,
+      message: "Stock consumed successfully",
+      data: stock,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-// 🧹 Delete All Stock (For Development/Testing)
+/* =====================================================
+   🧹 DELETE ALL STOCK (DEV ONLY)
+===================================================== */
 export const deleteAllStock = async (req, res) => {
   try {
     await Inventory.deleteMany();

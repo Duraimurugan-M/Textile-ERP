@@ -17,6 +17,7 @@ const yarnSchema = new mongoose.Schema(
     },
     shade: {
       type: String,
+      enum: ["Raw", "Bleached", "Dyed"],
       default: "Raw",
     },
     supplier: {

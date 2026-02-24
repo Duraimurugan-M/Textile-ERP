@@ -3,6 +3,7 @@ import { addStock, deductStock } from "../services/inventoryService.js";
 import StockMovement from "../models/StockMovement.js";
 import Inventory from "../models/Inventory.js";
 import QueryFeatures from "../utils/queryFeatures.js";
+import QC from "../models/QC.js";
 
 // ✅ Create Production
 export const createProduction = async (req, res) => {
@@ -143,6 +144,13 @@ export const createProduction = async (req, res) => {
       referenceId: production._id,
       performedBy: req.user._id,
     });
+
+    // 🔹 Create QC Entry Automatically
+await QC.create({
+  materialType: "FinishedFabric",
+  lotNumber: outputLotNumber,
+  status: "Pending",
+});
 
     // ✅ Final Response
     res.status(201).json({

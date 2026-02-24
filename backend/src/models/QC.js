@@ -5,7 +5,7 @@ const qcSchema = new mongoose.Schema(
     lotNumber: {
       type: String,
       required: true,
-      unique: true, // one QC per lot
+      unique: true,
     },
 
     materialType: {
@@ -16,40 +16,34 @@ const qcSchema = new mongoose.Schema(
 
     gsm: {
       type: Number,
-      required: true,
     },
 
     width: {
       type: Number,
-      required: true,
     },
 
     shrinkage: {
       type: Number,
-      required: true,
     },
 
     defectPercentage: {
       type: Number,
-      required: true,
     },
 
     grade: {
       type: String,
       enum: ["A", "B", "C"],
-      required: true,
     },
 
     status: {
       type: String,
-      enum: ["Approved", "Rejected"],
-      required: true,
+      enum: ["Pending", "Approved", "Rejected"],
+      default: "Pending",
     },
 
     inspectedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
   },
   { timestamps: true }

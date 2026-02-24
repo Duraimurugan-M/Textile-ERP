@@ -2,22 +2,12 @@ import mongoose from "mongoose";
 
 const yarnSchema = new mongoose.Schema(
   {
-    yarnName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    count: {
-      type: String, // e.g., 40s, 60s
-      required: true,
-    },
-    composition: {
-      type: String, // Cotton / Polyester / PC
-      required: true,
-    },
+    yarnName: { type: String, required: true },
+    count: { type: String, required: true },
+    composition: { type: String, required: true },
     shade: {
       type: String,
-      enum: ["Raw", "Bleached", "Dyed"],
+      enum: ["Raw", "Dyed", "Bleached", "Printed"],
       default: "Raw",
     },
     supplier: {
@@ -29,22 +19,28 @@ const yarnSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    quantity: {
+
+    totalQuantity: {
       type: Number,
       required: true,
     },
+
+    quantityAvailable: {
+      type: Number,
+      required: true,
+    },
+
+    quantityInJobWork: {
+      type: Number,
+      default: 0,
+    },
+
     unit: {
       type: String,
       default: "kg",
-    },
-    status: {
-      type: String,
-      enum: ["Available", "SentToJobWork", "Consumed"],
-      default: "Available",
     },
   },
   { timestamps: true }
 );
 
-const Yarn = mongoose.model("Yarn", yarnSchema);
-export default Yarn;
+export default mongoose.model("Yarn", yarnSchema);

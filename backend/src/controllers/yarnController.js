@@ -3,6 +3,7 @@ import Inventory from "../models/Inventory.js";
 import StockMovement from "../models/StockMovement.js";
 
 // 🔹 Create Yarn
+// 🔹 Create Yarn
 export const createYarn = async (req, res) => {
   try {
     const {
@@ -12,7 +13,7 @@ export const createYarn = async (req, res) => {
       shade,
       supplier,
       lotNumber,
-      quantity,
+      quantity, // we still receive quantity from frontend
       unit,
     } = req.body;
 
@@ -25,6 +26,9 @@ export const createYarn = async (req, res) => {
       return res.status(400).json({ message: "Lot already exists" });
     }
 
+    // ✅ Convert to Number (important)
+    const qty = Number(quantity);
+
     const yarn = await Yarn.create({
       yarnName,
       count,
@@ -32,7 +36,9 @@ export const createYarn = async (req, res) => {
       shade,
       supplier,
       lotNumber,
-      quantity,
+      totalQuantity: qty,        // ✅ NEW
+      quantityAvailable: qty,    // ✅ NEW
+      quantityInJobWork: 0,      // ✅ NEW
       unit,
     });
 
@@ -40,7 +46,7 @@ export const createYarn = async (req, res) => {
     await Inventory.create({
       materialType: "RawYarn",
       lotNumber,
-      quantity,
+      quantity: qty,
       unit,
       location: "Main Warehouse",
       status: "Available",
@@ -53,9 +59,9 @@ export const createYarn = async (req, res) => {
       lotNumber,
       movementType: "IN",
       module: "Yarn",
-      quantity,
+      quantity: qty,
       previousStock: 0,
-      newStock: quantity,
+      newStock: qty,
       referenceId: yarn._id,
       performedBy: req.user._id,
     });
@@ -65,6 +71,7 @@ export const createYarn = async (req, res) => {
       message: "Yarn created successfully",
       data: yarn,
     });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

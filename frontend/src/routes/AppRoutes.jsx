@@ -17,6 +17,8 @@ import AddSupplier from "../pages/supplier/AddSupplier";
 import QCList from "../pages/qc/QCList";
 import AddQC from "../pages/qc/AddQC";
 import StockMovementList from "../pages/stockMovement/StockMovementList";
+import YarnList from "../pages/yarn/YarnList";
+import AddYarn from "../pages/yarn/AddYarn";
 
 const AppRoutes = () => {
   return (
@@ -167,8 +169,28 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+
+        <Route
+          path="/yarn"
+          element={
+            <Layout>
+              <YarnList />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/yarn/add"
+          element={
+            <Layout>
+              <AddYarn />
+            </Layout>
+          }
+        />
+        
       </Routes>
     </BrowserRouter>
+
   );
 };
 

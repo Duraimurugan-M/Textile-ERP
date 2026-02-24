@@ -104,6 +104,16 @@ const Sidebar = () => {
         <FaTruckLoading />
         Stock Movement
       </NavLink>
+
+      <NavLink
+        to="/yarn"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaBox />
+        Yarn
+      </NavLink>
     </div>
   );
 };

@@ -28,7 +28,12 @@ export const createStock = async (req, res) => {
 // 📦 Get All Stock
 export const getInventory = async (req, res) => {
   try {
-    const totalRecords = await Inventory.countDocuments();
+    // Only show Available stock
+    req.query.status = "Available";
+
+    const totalRecords = await Inventory.countDocuments({
+      status: "Available",
+    });
 
     const features = new QueryFeatures(Inventory, req.query)
       .filter()

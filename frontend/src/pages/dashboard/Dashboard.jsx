@@ -38,13 +38,14 @@ const Dashboard = () => {
   /* ---------------- CHART DATA ---------------- */
 
   const chartData = {
-    labels: data.monthlySales?.map((item) => {
-      if (range === "yearly") return item._id.year;
-      if (range === "weekly") return `W${item._id.week}`;
-      if (range === "daily")
-        return `${item._id.day}/${item._id.month}`;
-      return `${item._id.month}/${item._id.year}`;
-    }) || [],
+    labels:
+      data.monthlySales?.map((item) => {
+        if (range === "yearly") return item._id.year;
+        if (range === "weekly") return `W${item._id.week}`;
+        if (range === "daily")
+          return `${item._id.day}/${item._id.month}`;
+        return `${item._id.month}/${item._id.year}`;
+      }) || [],
     datasets: [
       {
         label: "Sales",
@@ -83,6 +84,7 @@ const Dashboard = () => {
           <p>₹ {data.todaySalesAmount ?? 0}</p>
         </div>
 
+        {/* ✅ LOW STOCK */}
         <div
           className={`${styles.card} ${styles.alertCard}`}
           onClick={() => navigate("/inventory?lowStock=true")}
@@ -91,6 +93,7 @@ const Dashboard = () => {
           <p>{data.lowStockCount ?? 0}</p>
         </div>
 
+        {/* ✅ QC PENDING FIXED */}
         <div
           className={`${styles.card} ${styles.warningCard}`}
           onClick={() => navigate("/qc?status=Pending")}
@@ -116,19 +119,25 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {data.topCustomers?.map((cust) => (
-                <tr key={cust.customerName}>
-                  <td>{cust.customerName}</td>
-                  <td>₹ {cust.totalPurchase}</td>
-                  <td>{cust.totalOrders}</td>
-                  <td>
-                    {cust.lastPurchase
-                      ? new Date(cust.lastPurchase).toLocaleDateString()
-                      : "-"}
-                  </td>
-                  <td>{cust.mostProduct}</td>
+              {data.topCustomers?.length > 0 ? (
+                data.topCustomers.map((cust) => (
+                  <tr key={cust.customerName}>
+                    <td>{cust.customerName}</td>
+                    <td>₹ {cust.totalPurchase}</td>
+                    <td>{cust.totalOrders}</td>
+                    <td>
+                      {cust.lastPurchase
+                        ? new Date(cust.lastPurchase).toLocaleDateString()
+                        : "-"}
+                    </td>
+                    <td>{cust.mostProduct}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">No customer data available</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

@@ -21,28 +21,54 @@ const QCList = () => {
   };
 
   const columns = [
-    { key: "lotNumber", label: "Lot" },
-    { key: "gsm", label: "GSM" },
-    { key: "width", label: "Width" },
+    {
+      key: "lotNumber",
+      label: "Lot",
+    },
+    {
+      key: "gsm",
+      label: "GSM",
+      render: (row) => row.gsm ?? "-",
+    },
+    {
+      key: "width",
+      label: "Width",
+      render: (row) => row.width ?? "-",
+    },
     {
       key: "defectPercentage",
       label: "Defect %",
-      render: (row) => `${row.defectPercentage}%`,
+      render: (row) =>
+        row.defectPercentage != null
+          ? `${row.defectPercentage}%`
+          : "-",
     },
-    { key: "grade", label: "Grade" },
+    {
+      key: "grade",
+      label: "Grade",
+      render: (row) => row.grade ?? "-",
+    },
     {
       key: "status",
       label: "Status",
-      render: (row) => (
-        <span
-          style={{
-            color: row.status === "Approved" ? "green" : "red",
-            fontWeight: "600",
-          }}
-        >
-          {row.status}
-        </span>
-      ),
+      render: (row) => {
+        let color = "gray";
+
+        if (row.status === "Approved") color = "green";
+        else if (row.status === "Rejected") color = "red";
+        else if (row.status === "Pending") color = "orange";
+
+        return (
+          <span
+            style={{
+              color,
+              fontWeight: "600",
+            }}
+          >
+            {row.status}
+          </span>
+        );
+      },
     },
   ];
 

@@ -13,7 +13,7 @@ const StockMovementList = () => {
       const { data } = await API.get(`/stock-movement?${query}`);
 
       setMovements(data.data);
-      setTotalPages(data.totalPages);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error(error);
     }

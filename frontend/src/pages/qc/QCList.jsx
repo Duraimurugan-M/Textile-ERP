@@ -14,7 +14,7 @@ const QCList = () => {
       const { data } = await API.get(`/qc?${query}`);
 
       setQcList(data.data);
-      setTotalPages(data.totalPages);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching QC", error);
     }

@@ -14,7 +14,7 @@ const ProductionList = () => {
       const { data } = await API.get(`/production?${query}`);
 
       setProductions(data.data);
-      setTotalPages(data.totalPages);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching production", error);
     }

@@ -14,7 +14,7 @@ const SalesList = () => {
       const { data } = await API.get(`/sales?${query}`);
 
       setSales(data.data);
-      setTotalPages(data.totalPages);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching sales", error);
     }

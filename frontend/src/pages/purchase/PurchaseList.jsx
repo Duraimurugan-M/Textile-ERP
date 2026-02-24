@@ -15,7 +15,7 @@ const PurchaseList = () => {
       const { data } = await API.get(`/purchase?${query}`);
 
       setPurchases(data.data);
-      setTotalPages(data.totalPages);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching purchases", error);
     }

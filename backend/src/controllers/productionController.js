@@ -5,7 +5,9 @@ import Inventory from "../models/Inventory.js";
 import QueryFeatures from "../utils/queryFeatures.js";
 import QC from "../models/QC.js";
 
-// ✅ Create Production
+/* =====================================================
+   ✅ CREATE PRODUCTION
+===================================================== */
 export const createProduction = async (req, res) => {
   try {
     const {
@@ -17,7 +19,7 @@ export const createProduction = async (req, res) => {
       outputQuantity,
     } = req.body;
 
-    // 🔹 Basic Validation
+    /* ---------- BASIC VALIDATION ---------- */
     if (
       !inputMaterialType ||
       !inputLotNumber ||
@@ -42,7 +44,7 @@ export const createProduction = async (req, res) => {
       });
     }
 
-    // 🔒 Output lot must NOT exist
+    /* ---------- CHECK OUTPUT LOT ---------- */
     const existingOutputLot = await Inventory.findOne({
       lotNumber: outputLotNumber,
     });
@@ -53,7 +55,7 @@ export const createProduction = async (req, res) => {
       });
     }
 
-    // 🔒 Check input stock before deduction
+    /* ---------- CHECK INPUT STOCK ---------- */
     const inputStockBefore = await Inventory.findOne({
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
@@ -71,25 +73,24 @@ export const createProduction = async (req, res) => {
       });
     }
 
-    // 🔻 Deduct input stock
+    /* ---------- DEDUCT INPUT STOCK ---------- */
     await deductStock({
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
       quantity: inputQty,
     });
 
-    // Get stock after deduction
     const inputStockAfter = await Inventory.findOne({
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
     });
 
-    // 📊 Calculate Wastage & Efficiency
+    /* ---------- CALCULATIONS ---------- */
     const wastage = inputQty - outputQty;
     const wastagePercentage = (wastage / inputQty) * 100;
     const efficiencyPercentage = (outputQty / inputQty) * 100;
 
-    // ✅ Create Production Record
+    /* ---------- CREATE PRODUCTION RECORD ---------- */
     const production = await Production.create({
       inputMaterialType,
       inputLotNumber,
@@ -104,7 +105,7 @@ export const createProduction = async (req, res) => {
       createdBy: req.user._id,
     });
 
-    // 📘 Ledger ENTRY (INPUT OUT)
+    /* ---------- STOCK MOVEMENT (INPUT OUT) ---------- */
     await StockMovement.create({
       materialType: inputMaterialType,
       lotNumber: inputLotNumber,
@@ -117,7 +118,7 @@ export const createProduction = async (req, res) => {
       performedBy: req.user._id,
     });
 
-    // 🔼 Add Output Stock
+    /* ---------- ADD OUTPUT STOCK ---------- */
     await addStock({
       materialType: outputMaterialType,
       lotNumber: outputLotNumber,
@@ -132,7 +133,7 @@ export const createProduction = async (req, res) => {
       lotNumber: outputLotNumber,
     });
 
-    // 📘 Ledger ENTRY (OUTPUT IN)
+    /* ---------- STOCK MOVEMENT (OUTPUT IN) ---------- */
     await StockMovement.create({
       materialType: outputMaterialType,
       lotNumber: outputLotNumber,
@@ -145,14 +146,25 @@ export const createProduction = async (req, res) => {
       performedBy: req.user._id,
     });
 
-    // 🔹 Create QC Entry Automatically
-await QC.create({
-  materialType: "FinishedFabric",
-  lotNumber: outputLotNumber,
-  status: "Pending",
-});
+    /* =====================================================
+       🔥 IMPORTANT: SET INVENTORY STATUS TO InProcess
+       (This means QC Pending Stage)
+    ===================================================== */
+    if (outputMaterialType === "FinishedFabric") {
+      await Inventory.findOneAndUpdate(
+        { lotNumber: outputLotNumber },
+        { status: "InProcess" }
+      );
 
-    // ✅ Final Response
+      /* ---------- CREATE QC (AUTO - Pending) ---------- */
+      await QC.create({
+        materialType: "FinishedFabric",
+        lotNumber: outputLotNumber,
+        status: "Pending",
+      });
+    }
+
+    /* ---------- FINAL RESPONSE ---------- */
     res.status(201).json({
       success: true,
       message: "Production completed successfully",
@@ -163,19 +175,26 @@ await QC.create({
   }
 };
 
-// ✅ Get Productions
+/* =====================================================
+   ✅ GET PRODUCTIONS
+===================================================== */
 export const getProductions = async (req, res) => {
   try {
     const totalRecords = await Production.countDocuments();
 
-    const features = new QueryFeatures(Production, req.query)
+    const features = new QueryFeatures(
+      Production.find(),
+      req.query
+    )
       .filter()
       .search(["inputLotNumber", "outputLotNumber"])
       .sort()
       .paginate();
 
-    const productions = await features.query
-      .populate("createdBy", "name email");
+    const productions = await features.query.populate(
+      "createdBy",
+      "name email"
+    );
 
     res.json({
       success: true,
@@ -189,7 +208,9 @@ export const getProductions = async (req, res) => {
   }
 };
 
-// ✅ Delete All (Testing Only)
+/* =====================================================
+   🧹 DELETE ALL (DEV ONLY)
+===================================================== */
 export const deleteAllProductions = async (req, res) => {
   try {
     await Production.deleteMany();

@@ -1,5 +1,5 @@
 import express from "express";
-import { createQC, deleteQCRecords, getQCRecords } from "../controllers/qcController.js";
+import { updateQC, deleteQCRecords, getQCRecords } from "../controllers/qcController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import checkPermission from "../middleware/permissionMiddleware.js";
 
@@ -11,7 +11,7 @@ router.post(
   "/",
   authMiddleware,
   checkPermission("qc", "approve"),
-  createQC
+  updateQC
 );
 
 router.delete("/delete-all", authMiddleware, checkPermission("qc", "approve"), deleteQCRecords);

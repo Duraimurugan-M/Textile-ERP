@@ -2,7 +2,10 @@ import QC from "../models/QC.js";
 import Inventory from "../models/Inventory.js";
 import QueryFeatures from "../utils/queryFeatures.js";
 
-export const createQC = async (req, res) => {
+/* =====================================================
+   ✅ UPDATE QC (Approve / Reject)
+===================================================== */
+export const updateQC = async (req, res) => {
   try {
     const {
       lotNumber,
@@ -14,55 +17,59 @@ export const createQC = async (req, res) => {
       status,
     } = req.body;
 
-    // 🔍 Check lot exists
-    const inventoryLot = await Inventory.findOne({
-      lotNumber,
-      materialType: "FinishedFabric",
-    });
+    const qc = await QC.findOne({ lotNumber });
 
-    if (!inventoryLot)
-      return res.status(404).json({ message: "Lot not found" });
+    if (!qc)
+      return res.status(404).json({ message: "QC record not found" });
 
-    // 🔒 Check QC already done
-    const existingQC = await QC.findOne({ lotNumber });
-    if (existingQC)
-      return res.status(400).json({ message: "QC already completed for this lot" });
+    // Update QC fields
+    qc.gsm = gsm;
+    qc.width = width;
+    qc.shrinkage = shrinkage;
+    qc.defectPercentage = defectPercentage;
+    qc.grade = grade;
+    qc.status = status;
+    qc.inspectedBy = req.user._id;
 
-    const qc = await QC.create({
-      lotNumber,
-      materialType: "FinishedFabric",
-      gsm,
-      width,
-      shrinkage,
-      defectPercentage,
-      grade,
-      status,
-      inspectedBy: req.user._id,
-    });
+    await qc.save();
 
-    res.status(201).json({
+    /* 🔥 IMPORTANT: Sync Inventory Status */
+    if (status === "Approved") {
+      await Inventory.findOneAndUpdate(
+        { lotNumber },
+        { status: "Available" }
+      );
+    } else if (status === "Rejected") {
+      await Inventory.findOneAndUpdate(
+        { lotNumber },
+        { status: "Rejected" }
+      );
+    }
+
+    res.status(200).json({
       success: true,
-      message: "QC completed successfully",
+      message: "QC updated successfully",
       data: qc,
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+/* =====================================================
+   📦 GET QC RECORDS
+===================================================== */
 export const getQCRecords = async (req, res) => {
   try {
     const totalRecords = await QC.countDocuments();
 
-    const features = new QueryFeatures(QC, req.query)
+    const features = new QueryFeatures(QC.find(), req.query)
       .filter()
       .search(["lotNumber", "grade"])
       .sort()
       .paginate();
 
-    const qc = await features.query
-      .populate("inspectedBy", "name");
+    const qc = await features.query.populate("inspectedBy", "name");
 
     res.json({
       success: true,
@@ -76,7 +83,9 @@ export const getQCRecords = async (req, res) => {
   }
 };
 
-// delete all qc rocords (Dev only)
+/* =====================================================
+   🧹 DELETE ALL QC (DEV)
+===================================================== */
 export const deleteQCRecords = async (req, res) => {
   try {
     await QC.deleteMany();

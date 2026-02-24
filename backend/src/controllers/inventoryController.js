@@ -23,14 +23,17 @@ export const createStock = async (req, res) => {
 };
 
 /* =====================================================
-   📦 GET INVENTORY (AVAILABLE ONLY)
+   📦 GET INVENTORY 
 ===================================================== */
 export const getInventory = async (req, res) => {
   try {
-    const baseQuery = Inventory.find({ status: "Available" });
+    // Allow dynamic status filtering
+    const statusFilter = req.query.status || "Available";
+
+    const baseQuery = Inventory.find({ status: statusFilter });
 
     const totalRecords = await Inventory.countDocuments({
-      status: "Available",
+      status: statusFilter,
     });
 
     const features = new QueryFeatures(baseQuery, req.query)

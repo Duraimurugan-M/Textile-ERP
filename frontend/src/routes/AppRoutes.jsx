@@ -19,6 +19,8 @@ import AddQC from "../pages/qc/AddQC";
 import StockMovementList from "../pages/stockMovement/StockMovementList";
 import YarnList from "../pages/yarn/YarnList";
 import AddYarn from "../pages/yarn/AddYarn";
+import VendorList from "../pages/vendor/VendorList";
+import AddVendor from "../pages/vendor/AddVendor";
 
 const AppRoutes = () => {
   return (
@@ -187,7 +189,25 @@ const AppRoutes = () => {
             </Layout>
           }
         />
-        
+
+        <Route
+          path="/vendors"
+          element={
+            <Layout>
+              <VendorList />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/vendors/add"
+          element={
+            <Layout>
+              <AddVendor />
+            </Layout>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
 

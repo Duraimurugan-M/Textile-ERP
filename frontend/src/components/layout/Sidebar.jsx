@@ -114,6 +114,17 @@ const Sidebar = () => {
         <FaBox />
         Yarn
       </NavLink>
+
+      <NavLink
+        to="/vendors"
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.active : ""}`
+        }
+      >
+        <FaTruck />
+        Vendors
+      </NavLink>
+
     </div>
   );
 };

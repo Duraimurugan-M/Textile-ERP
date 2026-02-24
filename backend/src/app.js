@@ -12,6 +12,7 @@ import customerRoutes from "./routes/customerRoutes.js";
 import qcRoutes from "./routes/qcRoutes.js";
 import stockMovementRoutes from "./routes/stockMovementRoutes.js";
 import yarnRoutes from "./routes/yarnRoutes.js";
+import vendorRoutes from "./routes/vendorRoutes.js";
 
 
 const app = express();
@@ -31,5 +32,6 @@ app.use("/api/customers", customerRoutes);
 app.use("/api/qc", qcRoutes);
 app.use("/api/stock-movement", stockMovementRoutes);
 app.use("/api/yarn", yarnRoutes);
+app.use("/api/vendors", vendorRoutes);
 
 export default app;

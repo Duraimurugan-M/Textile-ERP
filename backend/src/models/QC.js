@@ -49,4 +49,6 @@ const qcSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("QC", qcSchema);
+const QC = mongoose.model("QC", qcSchema);
+
+export default QC;

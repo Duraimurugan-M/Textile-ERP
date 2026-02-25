@@ -4,6 +4,7 @@ const productionSchema = new mongoose.Schema(
   {
     inputMaterialType: {
       type: String,
+      enum: ["RawYarn", "DyedYarn", "GreyFabric"],
       required: true,
     },
 
@@ -15,24 +16,27 @@ const productionSchema = new mongoose.Schema(
     inputQuantity: {
       type: Number,
       required: true,
+      min: 0,
     },
 
     outputMaterialType: {
       type: String,
+      enum: ["DyedYarn", "GreyFabric", "FinishedFabric"],
       required: true,
     },
 
     outputLotNumber: {
       type: String,
       required: true,
+      unique: true,
     },
 
     outputQuantity: {
       type: Number,
       required: true,
+      min: 0,
     },
 
-    // 🆕 NEW FIELDS
     wastage: {
       type: Number,
       default: 0,
@@ -42,7 +46,7 @@ const productionSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    
+
     efficiencyPercentage: {
       type: Number,
       default: 0,
@@ -50,7 +54,7 @@ const productionSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Planned", "InProcess", "Completed"],
+      enum: ["Completed"],
       default: "Completed",
     },
 
@@ -64,4 +68,5 @@ const productionSchema = new mongoose.Schema(
 );
 
 const Production = mongoose.model("Production", productionSchema);
+
 export default Production;

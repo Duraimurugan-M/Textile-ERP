@@ -1,116 +1,64 @@
 import Inventory from "../models/Inventory.js";
-import { addStock, deductStock } from "../services/inventoryService.js";
-import QueryFeatures from "../utils/queryFeatures.js";
+import StockMovement from "../models/StockMovement.js";
 
 /* =====================================================
-   ➕ ADD STOCK
+   ➕ ADD STOCK (Purchase Entry)
 ===================================================== */
-export const createStock = async (req, res) => {
+export const addStock = async (req, res) => {
   try {
-    const stock = await addStock({
-      ...req.body,
-      createdBy: req.user._id,
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Stock added successfully",
-      data: stock,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-/* =====================================================
-   📦 GET INVENTORY 
-===================================================== */
-export const getInventory = async (req, res) => {
-  try {
-    // Allow dynamic status filtering
-    const statusFilter = req.query.status || "Available";
-
-    const baseQuery = Inventory.find({ status: statusFilter });
-
-    const totalRecords = await Inventory.countDocuments({
-      status: statusFilter,
-    });
-
-    const features = new QueryFeatures(baseQuery, req.query)
-      .filter()
-      .search(["lotNumber"])
-      .sort()
-      .paginate();
-
-    const inventory = await features.query;
-
-    res.json({
-      success: true,
-      data: inventory,
-      currentPage: features.page,
-      totalPages: Math.ceil(totalRecords / features.limit),
-      totalRecords,
-    });
-  } catch (error) {
-    console.error("Inventory Error:", error);
-    res.status(500).json({ message: error.message });
-  }
-};
-
-/* =====================================================
-   ➖ CONSUME STOCK
-===================================================== */
-export const consumeStock = async (req, res) => {
-  try {
-    const { materialType, lotNumber, quantity } = req.body;
+    const { materialType, lotNumber, quantity, unit, location } = req.body;
 
     if (!materialType || !lotNumber || !quantity) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const stock = await Inventory.findOne({
+    const existingLot = await Inventory.findOne({ lotNumber });
+
+    if (existingLot) {
+      return res.status(400).json({ message: "Lot already exists" });
+    }
+
+    const newStock = await Inventory.create({
       materialType,
       lotNumber,
+      quantity,
+      unit,
+      location,
+      status: "Available",
+      createdBy: req.user._id,
     });
 
-    if (!stock) {
-      return res.status(400).json({ message: "Stock not found" });
-    }
+    await StockMovement.create({
+      materialType,
+      lotNumber,
+      movementType: "IN",
+      module: "Purchase",
+      quantity,
+      previousStock: 0,
+      newStock: quantity,
+      performedBy: req.user._id,
+    });
 
-    if (stock.quantity < quantity) {
-      return res
-        .status(400)
-        .json({ message: "Insufficient stock quantity" });
-    }
-
-    stock.quantity -= quantity;
-
-    // If quantity becomes 0 → mark as Consumed
-    if (stock.quantity === 0) {
-      stock.status = "Consumed";
-    }
-
-    await stock.save();
-
-    res.status(200).json({
+    res.status(201).json({
       success: true,
-      message: "Stock consumed successfully",
-      data: stock,
+      message: "Stock added successfully",
+      data: newStock,
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
 /* =====================================================
-   🧹 DELETE ALL STOCK (DEV ONLY)
+   📦 GET AVAILABLE INVENTORY ONLY
 ===================================================== */
-export const deleteAllStock = async (req, res) => {
+export const getInventory = async (req, res) => {
   try {
-    await Inventory.deleteMany();
-    res.status(200).json({
+    const inventory = await Inventory.find({ status: "Available" });
+
+    res.json({
       success: true,
-      message: "All stock deleted successfully",
+      data: inventory,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

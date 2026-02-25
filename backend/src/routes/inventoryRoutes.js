@@ -1,46 +1,32 @@
 import express from "express";
 import {
-  createStock,
-  consumeStock,
-  deleteAllStock,
+  addStock,
   getInventory,
 } from "../controllers/inventoryController.js";
 
-import  authMiddleware  from "../middleware/authMiddleware.js";
-import  checkPermission  from "../middleware/permissionMiddleware.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+import checkPermission from "../middleware/permissionMiddleware.js";
 
 const router = express.Router();
 
-// Add stock (Store In-Charge or Purchase Manager)
+/* ==========================================
+   ADD STOCK (Purchase Entry)
+========================================== */
 router.post(
   "/",
   authMiddleware,
   checkPermission("inventory", "edit"),
-  createStock
+  addStock
 );
 
-// View stock
+/* ==========================================
+   GET AVAILABLE INVENTORY
+========================================== */
 router.get(
   "/",
   authMiddleware,
   checkPermission("inventory", "view"),
   getInventory
-);
-
-// Reduce stock (used in production later)
-router.put(
-  "/:id/reduce",
-  authMiddleware,
-  checkPermission("inventory", "edit"),
-  consumeStock
-);
-
-// Delete all stocks in development/testing phase
-router.delete(
-  "/delete-all",
-  authMiddleware,
-  checkPermission("inventory", "edit"),
-  deleteAllStock
 );
 
 export default router;

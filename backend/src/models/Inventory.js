@@ -26,28 +26,26 @@ const inventorySchema = new mongoose.Schema(
       default: "kg",
     },
 
+    status: {
+      type: String,
+      enum: ["Available", "InProcess", "Rejected", "Consumed"],
+      default: "Available",
+    },
+
     location: {
       type: String,
       default: "Main Warehouse",
     },
 
-    status: {
-      type: String,
-      enum: ["Available", "Consumed", "Rejected", "InProcess"],
-      default: "Available",
-    },
-
-    referenceId: {
-      type: mongoose.Schema.Types.ObjectId,
-    },
-
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { timestamps: true }
 );
 
 const Inventory = mongoose.model("Inventory", inventorySchema);
+
 export default Inventory;
